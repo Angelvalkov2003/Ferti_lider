@@ -140,8 +140,6 @@ function transformProduct(data: any): Product {
     images: data.images || [],
     price: data.price,
     compareAtPrice: data.compare_at_price,
-    variants: [],
-    tags: [],
     category: data.category,
     createdAt: data.created_at,
     updatedAt: data.updated_at,

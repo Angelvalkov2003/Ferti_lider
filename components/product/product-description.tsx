@@ -1,8 +1,6 @@
 import { AddToCart } from "components/cart/add-to-cart";
 import Price from "components/price";
-import Prose from "components/prose";
 import { Product } from "lib/types";
-import { VariantSelector } from "./variant-selector";
 
 export function ProductDescription({ product }: { product: Product }) {
   return (
@@ -16,9 +14,6 @@ export function ProductDescription({ product }: { product: Product }) {
           />
         </div>
       </div>
-      {product.variants && product.variants.length > 0 && (
-        <VariantSelector variants={product.variants} />
-      )}
       {product.description && (
         <div className="mb-6 text-sm leading-tight dark:text-white/[60%]">
           {product.description}

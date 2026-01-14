@@ -30,6 +30,11 @@ try {
 
 export async function getSupabaseServerClient() {
   try {
+    // TypeScript guard: ensure variables are defined
+    if (!supabaseUrl || !supabaseAnonKey) {
+      throw new Error("Missing Supabase environment variables");
+    }
+    
     const cookieStore = await cookies();
     
     return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {

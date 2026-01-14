@@ -6,7 +6,12 @@ import FilterList from "./filter";
 
 async function CollectionList() {
   const collections = await getCollections();
-  return <FilterList list={collections} title="Колекции" />;
+  // Transform Collection[] to PathFilterItem[] format
+  const list = collections.map((collection) => ({
+    title: collection.title,
+    path: `/search/${collection.handle}`,
+  }));
+  return <FilterList list={list} title="Колекции" />;
 }
 
 const skeleton = "mb-3 h-4 w-5/6 animate-pulse rounded-sm";
