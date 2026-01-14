@@ -192,7 +192,14 @@ export function ProductForm({ product, collections }: ProductFormProps) {
 
   const updateImage = (index: number, field: keyof Image, value: any) => {
     const updated = [...formData.images];
-    updated[index] = { ...updated[index], [field]: value };
+    const existingImage = updated[index];
+    if (existingImage) {
+      updated[index] = { 
+        ...existingImage, 
+        [field]: value,
+        id: existingImage.id, // Ensure id is always a string
+      };
+    }
     setFormData({ ...formData, images: updated });
   };
 
