@@ -60,7 +60,7 @@ export default async function ProductPage(props: {
       availability: product.available
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",
-      priceCurrency: "USD",
+      priceCurrency: "EUR",
       price: product.price,
     },
   };
@@ -132,7 +132,7 @@ async function RelatedProducts({ category, currentId }: { category?: string; cur
                 label={{
                   title: product.title,
                   amount: product.price.toString(),
-                  currencyCode: "USD",
+                  currencyCode: "EUR",
                 }}
                 src={product.featuredImage?.url}
                 fill

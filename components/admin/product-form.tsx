@@ -4,21 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProductAction, updateProductAction } from "app/admin/products/actions";
 import { toast } from "sonner";
-import type { ProductVariant, Image } from "lib/types";
+import type { Image } from "lib/types";
+import { ImageUploadButton } from "./image-upload-button";
 
 interface ProductFormData {
   handle: string;
   title: string;
   description: string;
-  description_html: string;
   price: string;
   compare_at_price: string;
   featured_image_url: string;
-  featured_image_alt: string;
   category: string;
   available: boolean;
-  tags: string;
-  variants: ProductVariant[];
   images: Image[];
 }
 
@@ -30,19 +27,16 @@ interface ProductFormProps {
 export function ProductForm({ product, collections }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState<Set<string>>(new Set());
   const [formData, setFormData] = useState<ProductFormData>({
     handle: product?.handle || "",
     title: product?.title || "",
     description: product?.description || "",
-    description_html: product?.description_html || "",
     price: product?.price?.toString() || "0",
     compare_at_price: product?.compare_at_price?.toString() || "",
     featured_image_url: product?.featured_image?.url || "",
-    featured_image_alt: product?.featured_image?.altText || "",
     category: product?.category || "",
     available: product?.available !== false,
-    tags: product?.tags?.join(", ") || "",
-    variants: product?.variants || [],
     images: product?.images || [],
   });
 
@@ -55,26 +49,24 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         ? {
             id: product?.featured_image?.id || "",
             url: formData.featured_image_url,
-            altText: formData.featured_image_alt || formData.title,
+            altText: formData.title,
           }
         : undefined;
 
-      const tags = formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0);
+      // Ensure all images have altText set to product title
+      const imagesWithAltText = formData.images.map((img) => ({
+        ...img,
+        altText: formData.title,
+      }));
 
       const productData = {
         handle: formData.handle,
         title: formData.title,
         description: formData.description || undefined,
-        description_html: formData.description_html || undefined,
         price: parseFloat(formData.price),
         compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : undefined,
         featured_image: featuredImage,
-        images: formData.images,
-        variants: formData.variants,
-        tags: tags,
+        images: imagesWithAltText,
         category: formData.category || undefined,
         available: formData.available,
       };
@@ -101,36 +93,100 @@ export function ProductForm({ product, collections }: ProductFormProps) {
     }
   };
 
-  const addVariant = () => {
-    const newVariant: ProductVariant = {
-      id: `variant-${Date.now()}`,
-      title: "",
-      price: 0,
-      available: true,
-    };
-    setFormData({ ...formData, variants: [...formData.variants, newVariant] });
-  };
-
-  const updateVariant = (index: number, field: keyof ProductVariant, value: any) => {
-    const updated = [...formData.variants];
-    updated[index] = { ...updated[index], [field]: value };
-    setFormData({ ...formData, variants: updated });
-  };
-
-  const removeVariant = (index: number) => {
-    setFormData({
-      ...formData,
-      variants: formData.variants.filter((_, i) => i !== index),
-    });
-  };
-
   const addImage = () => {
-    const newImage: Image = {
-      id: `img-${Date.now()}`,
-      url: "",
-      altText: "",
+    // Create a temporary file input to trigger file selection
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast.error("Моля, избери валиден файл със снимка");
+        return;
+      }
+
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Файлът е твърде голям. Максималният размер е 10MB");
+        return;
+      }
+
+      // Create a new image entry with temporary ID
+      const tempId = `img-${Date.now()}`;
+      const newImage: Image = {
+        id: tempId,
+        url: "",
+        altText: formData.title,
+      };
+      
+      // Calculate the new index before adding
+      const newIndex = formData.images.length;
+      
+      // Add the image to the list immediately (will show loading state)
+      setFormData((prev) => ({ ...prev, images: [...prev.images, newImage] }));
+      setUploadingImages((prev) => new Set(prev).add(tempId));
+
+      try {
+        // Upload the file
+        const uploadFormData = new FormData();
+        uploadFormData.append("file", file);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadFormData,
+        });
+
+        let data;
+        try {
+          data = await response.json();
+        } catch (parseError) {
+          console.error("Failed to parse response:", parseError);
+          throw new Error("Грешка при обработка на отговора от сървъра");
+        }
+
+        if (!response.ok) {
+          console.error("Upload failed:", data);
+          throw new Error(data.error || `Грешка при качване на снимка (${response.status})`);
+        }
+
+        // Update the image with the uploaded URL
+        setFormData((prev) => {
+          const updated = [...prev.images];
+          updated[newIndex] = {
+            ...updated[newIndex],
+            url: data.url,
+            altText: prev.title,
+          };
+          return { ...prev, images: updated };
+        });
+        
+        setUploadingImages((prev) => {
+          const next = new Set(prev);
+          next.delete(tempId);
+          return next;
+        });
+        
+        toast.success("Снимката е качена успешно");
+      } catch (error: any) {
+        console.error("Error uploading image:", error);
+        toast.error(error.message || "Грешка при качване на снимка");
+        // Remove the failed image entry
+        setFormData((prev) => ({
+          ...prev,
+          images: prev.images.filter((_, i) => i !== newIndex),
+        }));
+        setUploadingImages((prev) => {
+          const next = new Set(prev);
+          next.delete(tempId);
+          return next;
+        });
+      }
     };
-    setFormData({ ...formData, images: [...formData.images, newImage] });
+    input.click();
   };
 
   const updateImage = (index: number, field: keyof Image, value: any) => {
@@ -143,6 +199,24 @@ export function ProductForm({ product, collections }: ProductFormProps) {
     setFormData({
       ...formData,
       images: formData.images.filter((_, i) => i !== index),
+    });
+  };
+
+  const handleFeaturedImageUpload = (url: string) => {
+    setFormData({ ...formData, featured_image_url: url });
+  };
+
+  const handleImageUpload = (index: number, url: string) => {
+    setFormData((prev) => {
+      const updated = [...prev.images];
+      if (updated[index]) {
+        updated[index] = { 
+          ...updated[index], 
+          url: url,
+          altText: prev.title, // Automatically set alt text to product title
+        };
+      }
+      return { ...prev, images: updated };
     });
   };
 
@@ -186,18 +260,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={4}
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          HTML Описание
-        </label>
-        <textarea
-          value={formData.description_html}
-          onChange={(e) => setFormData({ ...formData, description_html: e.target.value })}
-          rows={6}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-mono text-sm"
+          placeholder="Описанието ще се покаже автоматично под продукта"
         />
       </div>
 
@@ -248,45 +311,33 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Главна Снимка URL
-          </label>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Главна Снимка
+        </label>
+        <div className="flex gap-2 items-end">
           <input
             type="url"
             value={formData.featured_image_url}
             onChange={(e) => setFormData({ ...formData, featured_image_url: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
             placeholder="https://example.com/image.jpg"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Alt Текст за Главна Снимка
-          </label>
-          <input
-            type="text"
-            value={formData.featured_image_alt}
-            onChange={(e) => setFormData({ ...formData, featured_image_alt: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          <ImageUploadButton
+            onUploadComplete={handleFeaturedImageUpload}
+            label="Качи Снимка"
           />
         </div>
+        {formData.featured_image_url && (
+          <div className="mt-2">
+            <img
+              src={formData.featured_image_url}
+              alt={formData.title}
+              className="h-32 w-32 object-cover rounded border"
+            />
+          </div>
+        )}
       </div>
-
-      {formData.featured_image_url && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Преглед на Главна Снимка
-          </label>
-          <img
-            src={formData.featured_image_url}
-            alt={formData.featured_image_alt}
-            className="h-32 w-32 object-cover rounded border"
-          />
-        </div>
-      )}
 
       <div>
         <div className="flex justify-between items-center mb-2">
@@ -301,106 +352,52 @@ export function ProductForm({ product, collections }: ProductFormProps) {
             + Добави Снимка
           </button>
         </div>
-        {formData.images.map((image, index) => (
-          <div key={index} className="flex gap-2 mb-2">
-            <input
-              type="url"
-              value={image.url}
-              onChange={(e) => updateImage(index, "url", e.target.value)}
-              placeholder="URL на снимка"
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            />
-            <input
-              type="text"
-              value={image.altText || ""}
-              onChange={(e) => updateImage(index, "altText", e.target.value)}
-              placeholder="Alt текст"
-              className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            />
-            <button
-              type="button"
-              onClick={() => removeImage(index)}
-              className="px-3 py-2 text-red-600 hover:text-red-700"
-            >
-              Изтрий
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <div className="flex justify-between items-center mb-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Варианти
-          </label>
-          <button
-            type="button"
-            onClick={addVariant}
-            className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
-          >
-            + Добави Вариант
-          </button>
-        </div>
-        {formData.variants.map((variant, index) => (
-          <div key={index} className="border p-4 rounded mb-2">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-              <input
-                type="text"
-                value={variant.title}
-                onChange={(e) => updateVariant(index, "title", e.target.value)}
-                placeholder="Име на вариант"
-                className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={variant.price}
-                onChange={(e) => updateVariant(index, "price", parseFloat(e.target.value))}
-                placeholder="Цена"
-                className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={variant.compareAtPrice || ""}
-                onChange={(e) => updateVariant(index, "compareAtPrice", e.target.value ? parseFloat(e.target.value) : undefined)}
-                placeholder="Стара цена"
-                className="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-              />
-              <div className="flex gap-2">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={variant.available}
-                    onChange={(e) => updateVariant(index, "available", e.target.checked)}
-                    className="mr-2"
-                  />
-                  Достъпен
-                </label>
+        {formData.images.map((image, index) => {
+          const isUploading = uploadingImages.has(image.id);
+          return (
+            <div key={image.id || index} className="mb-4 p-4 border border-gray-300 dark:border-gray-700 rounded-md">
+              <div className="flex gap-2 mb-2 items-end">
+                <input
+                  type="url"
+                  value={image.url}
+                  onChange={(e) => updateImage(index, "url", e.target.value)}
+                  placeholder="URL на снимка"
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                  disabled={isUploading}
+                />
+                <ImageUploadButton
+                  onUploadComplete={(url) => handleImageUpload(index, url)}
+                  label="Качи"
+                  className="text-sm"
+                  id={`additional-image-${index}`}
+                />
                 <button
                   type="button"
-                  onClick={() => removeVariant(index)}
-                  className="ml-auto text-red-600 hover:text-red-700"
+                  onClick={() => removeImage(index)}
+                  className="px-3 py-2 text-red-600 hover:text-red-700"
+                  disabled={isUploading}
                 >
                   Изтрий
                 </button>
               </div>
+              {isUploading ? (
+                <div className="mt-2 flex items-center gap-2">
+                  <div className="h-32 w-32 bg-gray-200 dark:bg-gray-700 rounded border flex items-center justify-center">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">Качване...</span>
+                  </div>
+                </div>
+              ) : image.url ? (
+                <div className="mt-2">
+                  <img
+                    src={image.url}
+                    alt={formData.title}
+                    className="h-32 w-32 object-cover rounded border"
+                  />
+                </div>
+              ) : null}
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Тагове (разделени със запетая)
-        </label>
-        <input
-          type="text"
-          value={formData.tags}
-          onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          placeholder="tag1, tag2, tag3"
-        />
+          );
+        })}
       </div>
 
       <div className="flex items-center">

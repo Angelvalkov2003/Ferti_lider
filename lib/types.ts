@@ -24,13 +24,10 @@ export type Product = {
   handle: string;
   title: string;
   description: string;
-  descriptionHtml?: string;
   featuredImage: Image;
   images: Image[];
   price: number;
   compareAtPrice?: number;
-  variants: ProductVariant[];
-  tags: string[];
   category?: string;
   createdAt: string;
   updatedAt: string;

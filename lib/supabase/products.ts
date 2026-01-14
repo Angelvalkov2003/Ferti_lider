@@ -107,9 +107,10 @@ export async function getCollectionProducts(handle: string): Promise<Product[]> 
   try {
     const supabase = await createServerClient();
     
+    // Verify collection exists
     const { data: collection, error } = await supabase
       .from("collections")
-      .select("id")
+      .select("handle")
       .eq("handle", handle)
       .single();
 
@@ -117,7 +118,8 @@ export async function getCollectionProducts(handle: string): Promise<Product[]> 
       return [];
     }
 
-    return getProducts({ collection: collection.id });
+    // Use handle (which is stored in products.category) to filter products
+    return getProducts({ collection: handle });
   } catch (error) {
     console.error("Error in getCollectionProducts:", error);
     return [];
@@ -130,7 +132,6 @@ function transformProduct(data: any): Product {
     handle: data.handle,
     title: data.title,
     description: data.description || "",
-    descriptionHtml: data.description_html,
     featuredImage: data.featured_image || {
       id: "",
       url: "/placeholder-image.jpg",
@@ -139,8 +140,8 @@ function transformProduct(data: any): Product {
     images: data.images || [],
     price: data.price,
     compareAtPrice: data.compare_at_price,
-    variants: data.variants || [],
-    tags: data.tags || [],
+    variants: [],
+    tags: [],
     category: data.category,
     createdAt: data.created_at,
     updatedAt: data.updated_at,

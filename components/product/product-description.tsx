@@ -12,23 +12,18 @@ export function ProductDescription({ product }: { product: Product }) {
         <div className="mr-auto w-auto rounded-full bg-blue-600 p-2 text-sm text-white">
           <Price
             amount={product.price.toString()}
-            currencyCode="USD"
+            currencyCode="EUR"
           />
         </div>
       </div>
       {product.variants && product.variants.length > 0 && (
         <VariantSelector variants={product.variants} />
       )}
-      {product.descriptionHtml ? (
-        <Prose
-          className="mb-6 text-sm leading-tight dark:text-white/[60%]"
-          html={product.descriptionHtml}
-        />
-      ) : product.description ? (
+      {product.description && (
         <div className="mb-6 text-sm leading-tight dark:text-white/[60%]">
           {product.description}
         </div>
-      ) : null}
+      )}
       <AddToCart product={product} />
     </>
   );

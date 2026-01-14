@@ -86,7 +86,7 @@ function createEmptyCart(): Cart {
     totalQuantity: 0,
     subtotal: 0,
     total: 0,
-    currency: "USD",
+    currency: "EUR",
   };
 }
 
@@ -101,7 +101,7 @@ function loadCartFromStorage(): Cart {
       totalQuantity: 0,
       subtotal: 0,
       total: 0,
-      currency: "USD",
+      currency: "EUR",
     };
   }
 
@@ -135,7 +135,7 @@ function loadCartFromStorage(): Cart {
     totalQuantity: 0,
     subtotal: 0,
     total: 0,
-    currency: "USD",
+    currency: "EUR",
   };
 }
 

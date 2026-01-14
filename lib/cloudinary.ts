@@ -1,10 +1,18 @@
 import { v2 as cloudinary } from "cloudinary";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Cloudinary SDK automatically reads CLOUDINARY_URL if set
+// Format: cloudinary://api_key:api_secret@cloud_name
+// If CLOUDINARY_URL is not set, fallback to individual env vars
+if (process.env.CLOUDINARY_URL) {
+  // SDK will automatically parse CLOUDINARY_URL
+} else if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+  // Fallback to individual env vars if CLOUDINARY_URL is not set
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
 
 export { cloudinary };
 
@@ -28,5 +36,19 @@ export function getCloudinaryUrl(
     ? transformations.join(",") + "/"
     : "";
 
-  return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${transformString}${publicId}`;
+  // Extract cloud_name from CLOUDINARY_URL if available, otherwise use env var
+  let cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  if (!cloudName && process.env.CLOUDINARY_URL) {
+    // Parse cloud_name from CLOUDINARY_URL: cloudinary://api_key:api_secret@cloud_name
+    const match = process.env.CLOUDINARY_URL.match(/@([^@]+)$/);
+    if (match) {
+      cloudName = match[1];
+    }
+  }
+  
+  if (!cloudName) {
+    throw new Error("Cloudinary cloud_name is not configured");
+  }
+  
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformString}${publicId}`;
 }

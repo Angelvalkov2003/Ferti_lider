@@ -120,7 +120,6 @@ CREATE TABLE products (
   handle TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
   description TEXT,
-  description_html TEXT,
   price DECIMAL(10,2) NOT NULL,
   compare_at_price DECIMAL(10,2),
   featured_image JSONB,

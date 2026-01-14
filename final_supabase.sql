@@ -35,13 +35,10 @@ CREATE TABLE products (
     handle TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
-    description_html TEXT,
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
     compare_at_price NUMERIC(10, 2),
     featured_image JSONB,
     images JSONB[] DEFAULT '{}',
-    variants JSONB[] DEFAULT '{}',
-    tags TEXT[] DEFAULT '{}',
     category TEXT, -- This references collections by handle or can be collection title
     available BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

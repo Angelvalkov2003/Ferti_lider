@@ -3,7 +3,7 @@ import clsx from "clsx";
 const Price = ({
   amount,
   className,
-  currencyCode = "USD",
+  currencyCode = "EUR",
   currencyCodeClassName,
 }: {
   amount: string;
@@ -12,7 +12,7 @@ const Price = ({
   currencyCodeClassName?: string;
 } & React.ComponentProps<"p">) => (
   <p suppressHydrationWarning={true} className={className}>
-    {`${new Intl.NumberFormat(undefined, {
+    {`${new Intl.NumberFormat("bg-BG", {
       style: "currency",
       currency: currencyCode,
       currencyDisplay: "narrowSymbol",

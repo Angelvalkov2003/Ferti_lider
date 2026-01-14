@@ -1,17 +1,14 @@
 import { createServerClient } from "./server";
-import type { Product, ProductVariant, Image } from "lib/types";
+import type { Image } from "lib/types";
 
 export interface CreateProductData {
   handle: string;
   title: string;
   description?: string;
-  description_html?: string;
   price: number;
   compare_at_price?: number;
   featured_image?: Image;
   images?: Image[];
-  variants?: ProductVariant[];
-  tags?: string[];
   category?: string;
   available?: boolean;
 }
@@ -80,13 +77,10 @@ export async function createProduct(data: CreateProductData) {
       handle: data.handle,
       title: data.title,
       description: data.description || null,
-      description_html: data.description_html || null,
       price: data.price,
       compare_at_price: data.compare_at_price || null,
       featured_image: data.featured_image || null,
       images: data.images || [],
-      variants: data.variants || [],
-      tags: data.tags || [],
       category: data.category || null,
       available: data.available !== false,
       updated_at: new Date().toISOString(),
@@ -124,13 +118,10 @@ export async function updateProduct(data: UpdateProductData) {
     if (data.handle !== undefined) updateData.handle = data.handle;
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description || null;
-    if (data.description_html !== undefined) updateData.description_html = data.description_html || null;
     if (data.price !== undefined) updateData.price = data.price;
     if (data.compare_at_price !== undefined) updateData.compare_at_price = data.compare_at_price || null;
     if (data.featured_image !== undefined) updateData.featured_image = data.featured_image || null;
     if (data.images !== undefined) updateData.images = data.images || [];
-    if (data.variants !== undefined) updateData.variants = data.variants || [];
-    if (data.tags !== undefined) updateData.tags = data.tags || [];
     if (data.category !== undefined) updateData.category = data.category || null;
     if (data.available !== undefined) updateData.available = data.available;
 
