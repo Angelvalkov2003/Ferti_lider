@@ -2,17 +2,27 @@ import { redirect } from "next/navigation";
 import { ReactNode } from "react";
 import { isAdmin } from "lib/supabase/auth";
 import { AdminNavbar } from "components/admin/navbar";
+import { headers } from "next/headers";
 
 export default async function AdminLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  // Check if we're on the login page - if so, don't check auth
+  const headersList = await headers();
+  const pathname = headersList.get("x-invoke-path") || "";
+  
+  // If we're on /admin/login, allow access without auth check
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   try {
     const admin = await isAdmin();
 
     if (!admin) {
-      redirect("/admin-login");
+      redirect("/admin/login");
     }
 
     return (
@@ -28,6 +38,6 @@ export default async function AdminLayout({
     }
     // If there's an error checking admin status, redirect to login
     console.error("Error checking admin status:", error);
-    redirect("/admin-login");
+    redirect("/admin/login");
   }
 }

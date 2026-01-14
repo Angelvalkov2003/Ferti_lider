@@ -40,7 +40,7 @@ export default function CartModal() {
 
   return (
     <>
-      <button aria-label="Open cart" onClick={openCart}>
+      <button aria-label="Отвори количка" onClick={openCart}>
         <OpenCart quantity={cart?.totalQuantity} />
       </button>
       <Transition show={isOpen}>
@@ -67,8 +67,8 @@ export default function CartModal() {
           >
             <Dialog.Panel className="fixed bottom-0 right-0 top-0 flex h-full w-full flex-col border-l border-neutral-200 bg-white/80 p-6 text-black backdrop-blur-xl md:w-[390px] dark:border-neutral-700 dark:bg-black/80 dark:text-white">
               <div className="flex items-center justify-between">
-                <p className="text-lg font-semibold">My Cart</p>
-                <button aria-label="Close cart" onClick={closeCart}>
+                <p className="text-lg font-semibold">Моята Количка</p>
+                <button aria-label="Затвори количка" onClick={closeCart}>
                   <CloseCart />
                 </button>
               </div>
@@ -77,7 +77,7 @@ export default function CartModal() {
                 <div className="mt-20 flex w-full flex-col items-center justify-center overflow-hidden">
                   <ShoppingCartIcon className="h-16" />
                   <p className="mt-6 text-center text-2xl font-bold">
-                    Your cart is empty.
+                    Вашата количка е празна.
                   </p>
                 </div>
               ) : (
@@ -121,7 +121,7 @@ export default function CartModal() {
                                     <span className="leading-tight">
                                       {item.product.title}
                                     </span>
-                                    {item.variant.title !== "Default" ? (
+                                    {item.variant.title !== "Стандартен" ? (
                                       <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                         {item.variant.title}
                                       </p>
@@ -160,7 +160,7 @@ export default function CartModal() {
                   </ul>
                   <div className="py-4 text-sm text-neutral-500 dark:text-neutral-400">
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 dark:border-neutral-700">
-                      <p>Subtotal</p>
+                      <p>Междинна сума</p>
                       <Price
                         className="text-right text-base text-black dark:text-white"
                         amount={cart.subtotal.toString()}
@@ -168,11 +168,11 @@ export default function CartModal() {
                       />
                     </div>
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
-                      <p>Shipping</p>
-                      <p className="text-right">Calculated at checkout</p>
+                      <p>Доставка</p>
+                      <p className="text-right">Ще се изчисли при плащане</p>
                     </div>
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
-                      <p>Total</p>
+                      <p>Общо</p>
                       <Price
                         className="text-right text-base text-black dark:text-white"
                         amount={cart.total.toString()}
@@ -180,15 +180,12 @@ export default function CartModal() {
                       />
                     </div>
                   </div>
-                  <form
-                    action={async () => {
-                      if (cart) {
-                        await redirectToCheckout(cart);
-                      }
-                    }}
+                  <Link
+                    href="/checkout"
+                    className="block w-full rounded-full bg-blue-600 p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100"
                   >
-                    <CheckoutButton />
-                  </form>
+                    Финализирай поръчката
+                  </Link>
                 </div>
               )}
             </Dialog.Panel>
@@ -212,16 +209,3 @@ function CloseCart({ className }: { className?: string }) {
   );
 }
 
-function CheckoutButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      className="block w-full rounded-full bg-blue-600 p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100"
-      type="submit"
-      disabled={pending}
-    >
-      {pending ? <LoadingDots className="bg-white" /> : "Proceed to Checkout"}
-    </button>
-  );
-}

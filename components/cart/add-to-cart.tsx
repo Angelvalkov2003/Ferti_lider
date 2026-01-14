@@ -22,7 +22,7 @@ function SubmitButton({
   if (!available) {
     return (
       <button disabled className={clsx(buttonClasses, disabledClasses)}>
-        Out Of Stock
+        Изчерпан
       </button>
     );
   }
@@ -30,21 +30,21 @@ function SubmitButton({
   if (!selectedVariantId) {
     return (
       <button
-        aria-label="Please select an option"
+        aria-label="Моля, изберете опция"
         disabled
         className={clsx(buttonClasses, disabledClasses)}
       >
         <div className="absolute left-0 ml-4">
           <PlusIcon className="h-5" />
         </div>
-        Add To Cart
+        Добави в Количка
       </button>
     );
   }
 
   return (
     <button
-      aria-label="Add to cart"
+      aria-label="Добави в количка"
       className={clsx(buttonClasses, {
         "hover:opacity-90": true,
       })}
@@ -52,7 +52,7 @@ function SubmitButton({
       <div className="absolute left-0 ml-4">
         <PlusIcon className="h-5" />
       </div>
-      Add To Cart
+      Добави в Количка
     </button>
   );
 }
@@ -75,7 +75,7 @@ export function AddToCart({ product }: { product: Product }) {
   const selectedVariantId = variant?.id || defaultVariantId;
   const finalVariant = variant || variants[0] || {
     id: product.id,
-    title: "Default",
+    title: "Стандартен",
     price: product.price,
     available: product.available,
   };

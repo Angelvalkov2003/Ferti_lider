@@ -23,7 +23,7 @@ type CartContextType = {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-function updateCartItem(
+function updateCartItemQuantity(
   item: CartItem,
   updateType: UpdateType,
 ): CartItem | null {
@@ -66,9 +66,17 @@ function createOrUpdateCartItem(
 }
 
 function updateCartTotals(items: CartItem[]): Pick<Cart, "totalQuantity" | "subtotal" | "total"> {
-  const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  // Filter out any invalid items before calculating totals
+  const validItems = items.filter((item): item is CartItem => 
+    item !== null && 
+    item !== undefined && 
+    typeof item.quantity === 'number' && 
+    typeof item.price === 'number'
+  );
+
+  const totalQuantity = validItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const subtotal = validItems.reduce(
+    (sum, item) => sum + ((item.price || 0) * (item.quantity || 0)),
     0,
   );
 
@@ -109,20 +117,35 @@ function loadCartFromStorage(): Cart {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
+      
+      // Validate and filter items
+      const validItems = (parsed.items || []).filter(
+        (item: any): item is CartItem =>
+          item !== null &&
+          item !== undefined &&
+          typeof item.id === 'string' &&
+          typeof item.quantity === 'number' &&
+          typeof item.price === 'number' &&
+          item.quantity > 0
+      );
+
       // Recalculate totals in case prices changed
-      const totalQuantity = parsed.items.reduce(
-        (sum: number, item: CartItem) => sum + item.quantity,
+      const totalQuantity = validItems.reduce(
+        (sum: number, item: CartItem) => sum + (item.quantity || 0),
         0
       );
-      const subtotal = parsed.items.reduce(
-        (sum: number, item: CartItem) => sum + item.price * item.quantity,
+      const subtotal = validItems.reduce(
+        (sum: number, item: CartItem) => sum + ((item.price || 0) * (item.quantity || 0)),
         0
       );
+      
       return {
         ...parsed,
+        items: validItems,
         totalQuantity,
         subtotal,
         total: subtotal,
+        currency: parsed.currency || "EUR",
       };
     }
   } catch (error) {
@@ -175,15 +198,22 @@ export function CartProvider({
 
   const updateCartItem = (itemId: string, updateType: UpdateType) => {
     setCart((currentCart) => {
-      if (!currentCart) return currentCart;
+      if (!currentCart || !currentCart.items) return currentCart;
 
-      const updatedItems = currentCart.items
-        .map((item) =>
-          item.id === itemId
-            ? updateCartItem(item, updateType)
-            : item,
-        )
-        .filter(Boolean) as CartItem[];
+      // Filter out any invalid items first
+      const validItems = currentCart.items.filter(
+        (item): item is CartItem => item !== null && item !== undefined && item.id !== undefined
+      );
+
+      const updatedItems = validItems
+        .map((item) => {
+          if (item.id === itemId) {
+            const updated = updateCartItemQuantity(item, updateType);
+            return updated; // Can be null if quantity becomes 0 or delete
+          }
+          return item;
+        })
+        .filter((item): item is CartItem => item !== null && item !== undefined);
 
       if (updatedItems.length === 0) {
         return {
@@ -206,7 +236,13 @@ export function CartProvider({
   const addCartItem = (variant: ProductVariant, product: Product) => {
     setCart((currentCart) => {
       const cart = currentCart || createEmptyCart();
-      const existingItem = cart.items.find(
+      
+      // Filter out any invalid items first
+      const validItems = (cart.items || []).filter(
+        (item): item is CartItem => item !== null && item !== undefined && item.id !== undefined
+      );
+      
+      const existingItem = validItems.find(
         (item) => item.variantId === variant.id,
       );
       const updatedItem = createOrUpdateCartItem(
@@ -216,10 +252,10 @@ export function CartProvider({
       );
 
       const updatedItems = existingItem
-        ? cart.items.map((item) =>
+        ? validItems.map((item) =>
             item.variantId === variant.id ? updatedItem : item,
           )
-        : [...cart.items, updatedItem];
+        : [...validItems, updatedItem];
 
       return {
         ...cart,

@@ -60,6 +60,10 @@ export async function middleware(request: NextRequest) {
   // Refresh session if expired - required for Server Components
   await supabase.auth.getUser();
 
+  // Add pathname to headers for layout to check if we're in admin/login
+  const pathname = request.nextUrl.pathname;
+  response.headers.set("x-invoke-path", pathname);
+
   return response;
 }
 

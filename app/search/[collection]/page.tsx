@@ -16,7 +16,7 @@ export async function generateMetadata(props: {
 
   return {
     title: collection.title,
-    description: collection.description || `${collection.title} products`,
+    description: collection.description || `Продукти от ${collection.title}`,
   };
 }
 
@@ -39,12 +39,12 @@ export default async function CategoryPage(props: {
         <h1 className="text-3xl font-bold">{collection.title}</h1>
         {products.length > 0 && (
           <p className="mt-2 text-neutral-600 dark:text-neutral-400">
-            {products.length} {products.length === 1 ? 'product' : 'products'}
+            {products.length} {products.length === 1 ? 'продукт' : 'продукта'}
           </p>
         )}
       </div>
       {products.length === 0 ? (
-        <p className="py-3 text-lg">{`No products found in this collection`}</p>
+        <p className="py-3 text-lg">{`Няма намерени продукти в тази колекция`}</p>
       ) : (
         <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <ProductGridItems products={products} />

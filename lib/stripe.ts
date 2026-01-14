@@ -10,9 +10,12 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export async function createCheckoutSession(cart: Cart, successUrl: string, cancelUrl: string) {
+  // Ensure currency is always EUR
+  const currency = "eur";
+  
   const lineItems = cart.items.map((item) => ({
     price_data: {
-      currency: cart.currency.toLowerCase(),
+      currency: currency,
       product_data: {
         name: item.product.title,
         images: item.product.image.url ? [item.product.image.url] : [],
@@ -28,6 +31,8 @@ export async function createCheckoutSession(cart: Cart, successUrl: string, canc
     mode: "payment",
     success_url: successUrl,
     cancel_url: cancelUrl,
+    currency: currency, // Explicitly set currency
+    locale: "bg", // Bulgarian language for checkout interface
     metadata: {
       cartId: cart.id || "",
     },

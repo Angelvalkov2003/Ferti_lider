@@ -68,6 +68,8 @@ CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
 # Stripe Configuration
+# IMPORTANT: Use PRODUCTION keys (not test keys) to remove "Sandbox" label
+# Get production keys from: Stripe Dashboard -> Developers -> API keys -> Reveal live key
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 STRIPE_SECRET_KEY=your_stripe_secret_key
 
@@ -102,7 +104,7 @@ RESEND_API_KEY=your_resend_api_key
    - Click **"Add user"** to create a new admin user
    - Enter an email address and password for your admin account
    - ⚠️ **Important**: Save these credentials - you'll use them to log into the admin panel
-   - Now you can log in at `/admin-login` using the email and password you created
+   - Now you can log in at `/admin/login` using the email and password you created
 
 7. Run the development server:
 ```bash
@@ -253,7 +255,7 @@ const order = await createOrder({
 
 ## Admin Panel
 
-The admin panel is now available! Access it at `/admin-login`.
+The admin panel is now available! Access it at `/admin/login`.
 
 ### Setting Up Admin Access
 
@@ -278,7 +280,7 @@ The admin panel is now available! Access it at `/admin-login`.
 
 ### Admin Routes
 
-- `/admin-login` - Admin login page
+- `/admin/login` - Admin login page
 - `/admin` - Admin dashboard
 - `/admin/orders` - Orders management (coming soon)
 - `/admin/products` - Products management (coming soon)

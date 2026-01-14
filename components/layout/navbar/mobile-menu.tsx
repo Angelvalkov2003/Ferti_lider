@@ -70,7 +70,7 @@ export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
                 <button
                   className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors dark:border-neutral-700 dark:text-white"
                   onClick={closeMobileMenu}
-                  aria-label="Close mobile menu"
+                  aria-label="Затвори мобилно меню"
                 >
                   <XMarkIcon className="h-6" />
                 </button>

@@ -13,6 +13,7 @@ export interface CreateOrderData {
     quantity: number;
   }>;
   total_price: number;
+  payment_method: "cash_on_delivery" | "card";
   comment?: string;
 }
 
@@ -40,6 +41,7 @@ export async function createOrder(data: CreateOrderData) {
       customer_address: data.customer_address,
       products: productsJson,
       total_price: data.total_price,
+      payment_method: data.payment_method,
       status: "new",
       comment: data.comment || null,
     })
@@ -60,6 +62,7 @@ export async function createOrder(data: CreateOrderData) {
       customerPhone: data.customer_phone,
       customerAddress: data.customer_address,
       totalPrice: data.total_price,
+      paymentMethod: data.payment_method,
       products: data.products,
       comment: data.comment,
     });
@@ -114,7 +117,7 @@ export async function getAllOrders() {
  */
 export async function updateOrderStatus(
   orderId: string,
-  status: "new" | "paid" | "shipped" | "completed" | "canceled"
+  status: "new" | "confirmed" | "shipped" | "paid" | "completed" | "canceled"
 ) {
   const supabase = await createServerClient();
 
@@ -130,4 +133,38 @@ export async function updateOrderStatus(
   }
 
   return data;
+}
+
+/**
+ * Update entire order
+ */
+export interface UpdateOrderData {
+  customer_name?: string;
+  customer_email?: string;
+  customer_phone?: string;
+  customer_address?: string;
+  total_price?: number;
+  payment_method?: "cash_on_delivery" | "card";
+  status?: "new" | "confirmed" | "shipped" | "paid" | "completed" | "canceled";
+  comment?: string;
+}
+
+export async function updateOrder(
+  orderId: string,
+  data: UpdateOrderData
+) {
+  const supabase = await createServerClient();
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .update(data)
+    .eq("id", orderId)
+    .select()
+    .single();
+
+  if (error || !order) {
+    throw new Error("Failed to update order");
+  }
+
+  return order;
 }

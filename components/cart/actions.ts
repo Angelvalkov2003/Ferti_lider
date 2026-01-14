@@ -43,7 +43,7 @@ export async function updateItemQuantity(
 export async function redirectToCheckout(cart: Cart) {
   // Cart is passed from client side (from localStorage)
   if (!cart || cart.items.length === 0) {
-    return "Cart is empty";
+    return "Количката е празна";
   }
 
   try {
@@ -53,10 +53,16 @@ export async function redirectToCheckout(cart: Cart) {
       `${baseUrl}/checkout/cancel`
     );
 
+    // redirect() throws a NEXT_REDIRECT error which is expected behavior
+    // This is how Next.js handles redirects in server actions
     redirect(session.url!);
-  } catch (e) {
-    console.error(e);
-    return "Error creating checkout session";
+  } catch (e: any) {
+    // NEXT_REDIRECT is expected and should not be logged as an error
+    if (e?.digest?.startsWith("NEXT_REDIRECT")) {
+      throw e; // Re-throw redirect errors so Next.js can handle them
+    }
+    console.error("Error creating checkout session:", e);
+    return "Грешка при създаване на сесия за плащане";
   }
 }
 

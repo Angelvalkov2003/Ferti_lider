@@ -82,10 +82,18 @@ export default async function ProductPage(props: {
               }
             >
               <Gallery
-                images={product.images.slice(0, 5).map((image: Image) => ({
-                  src: image.url,
-                  altText: image.altText || product.title,
-                }))}
+                images={[
+                  // Главната снимка винаги е първа
+                  {
+                    src: product.featuredImage?.url || "",
+                    altText: product.featuredImage?.altText || product.title,
+                  },
+                  // След това идват допълнителните снимки
+                  ...(product.images || []).slice(0, 4).map((image: Image) => ({
+                    src: image.url,
+                    altText: image.altText || product.title,
+                  })),
+                ].filter((img) => img.src)} // Премахваме снимки без URL
               />
             </Suspense>
           </div>
@@ -115,7 +123,7 @@ async function RelatedProducts({ category, currentId }: { category?: string; cur
 
   return (
     <div className="py-8">
-      <h2 className="mb-4 text-2xl font-bold">Related Products</h2>
+      <h2 className="mb-4 text-2xl font-bold">Свързани Продукти</h2>
       <ul className="flex w-full gap-4 overflow-x-auto pt-1">
         {filtered.map((product) => (
           <li

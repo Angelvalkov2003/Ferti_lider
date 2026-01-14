@@ -66,7 +66,8 @@ CREATE TABLE orders (
     -- Order Information
     products JSONB NOT NULL, -- Array of product snapshots: [{id, name, price, quantity}, ...]
     total_price NUMERIC(10, 2) NOT NULL CHECK (total_price >= 0),
-    status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'paid', 'shipped', 'completed', 'canceled')),
+    payment_method VARCHAR(20) NOT NULL DEFAULT 'cash_on_delivery' CHECK (payment_method IN ('cash_on_delivery', 'card')),
+    status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'confirmed', 'shipped', 'paid', 'completed', 'canceled')),
     comment TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
