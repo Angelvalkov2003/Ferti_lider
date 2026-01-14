@@ -1,27 +1,54 @@
--- E-commerce Database Schema for Supabase
--- This script creates a simplified relational database schema for a basic online store
+-- Final E-commerce Database Schema for Supabase
+-- Clean schema without carts/cart_items - cart is stored locally in browser
+-- Run this in Supabase SQL Editor
+
+-- ⚠️ WARNING: This will DELETE all existing data!
+-- Make sure you have a backup if you have important data
+
+-- Drop all existing tables (in correct order to handle foreign keys)
+DROP TABLE IF EXISTS orders CASCADE;
+DROP TABLE IF EXISTS product_images CASCADE;
+DROP TABLE IF EXISTS products CASCADE;
+DROP TABLE IF EXISTS collections CASCADE;
+DROP TABLE IF EXISTS categories CASCADE;
+DROP TABLE IF EXISTS carts CASCADE;
+DROP TABLE IF EXISTS cart_items CASCADE;
+
+-- Drop functions if they exist
+DROP FUNCTION IF EXISTS validate_products_json(JSONB) CASCADE;
 
 -- Enable UUID extension (if not already enabled)
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Categories Table
-CREATE TABLE categories (
+-- 1. Collections Table (used for product categories/collections)
+-- This is the ONLY table for categorizing products
+CREATE TABLE collections (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    handle TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- 2. Products Table
 CREATE TABLE products (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    category_id UUID REFERENCES categories(id) ON DELETE SET NULL,
-    name VARCHAR(255) NOT NULL,
+    handle TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
     description TEXT,
+    description_html TEXT,
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    compare_at_price NUMERIC(10, 2),
+    featured_image JSONB,
+    images JSONB[] DEFAULT '{}',
+    variants JSONB[] DEFAULT '{}',
+    tags TEXT[] DEFAULT '{}',
+    category TEXT, -- This references collections by handle or can be collection title
+    available BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 3. Product Images Table
+-- 3. Product Images Table (optional - for additional product images)
 CREATE TABLE product_images (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     product_id UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -48,14 +75,17 @@ CREATE TABLE orders (
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_products_category_id ON products(category_id);
+CREATE INDEX idx_products_handle ON products(handle);
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_products_available ON products(available);
+CREATE INDEX idx_collections_handle ON collections(handle);
 CREATE INDEX idx_product_images_product_id ON product_images(product_id);
 CREATE INDEX idx_product_images_sort_order ON product_images(product_id, sort_order);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
 CREATE INDEX idx_orders_customer_email ON orders(customer_email);
 
--- Optional: Create a function to validate products JSON structure
+-- Function to validate products JSON structure in orders
 CREATE OR REPLACE FUNCTION validate_products_json(products_data JSONB)
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -78,16 +108,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
--- Optional: Add constraint to validate products JSON structure
+-- Add constraint to validate products JSON structure
 ALTER TABLE orders 
 ADD CONSTRAINT check_products_json 
 CHECK (validate_products_json(products));
 
 -- Add comments for documentation
-COMMENT ON TABLE categories IS 'Stores product categories';
+COMMENT ON TABLE collections IS 'Stores product collections/categories - this is the ONLY table for categorizing products';
 COMMENT ON TABLE products IS 'Stores products available in the online store';
 COMMENT ON TABLE product_images IS 'Stores product images with ordering support. sort_order 0 = main image';
-COMMENT ON TABLE orders IS 'Stores complete order information including customer details. Products are stored as JSON snapshots.';
+COMMENT ON TABLE orders IS 'Stores complete order information including customer details. Products are stored as JSON snapshots. Cart is stored locally in browser (localStorage/cookies), not in database.';
 COMMENT ON COLUMN product_images.sort_order IS '0 = main image, 1+ = secondary images';
 COMMENT ON COLUMN orders.products IS 'JSON array containing product snapshot: {id, name, price, quantity}';
 COMMENT ON COLUMN orders.status IS 'Order status: new, paid, shipped, completed, canceled';
+COMMENT ON COLUMN products.category IS 'Category/collection name - can reference collections table by handle or title';

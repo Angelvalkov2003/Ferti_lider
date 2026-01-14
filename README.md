@@ -75,10 +75,8 @@ STRIPE_SECRET_KEY=your_stripe_secret_key
 RESEND_API_KEY=your_resend_api_key
 
 # Admin Configuration
-# IMPORTANT: Use the SERVICE ROLE KEY (secret), NOT the anon key
-# Get this from Supabase Dashboard -> Settings -> API -> service_role -> Reveal
-# This key bypasses RLS and is safe for admin panel (not public)
-ADMIN_API_KEY=your_supabase_service_role_key_here
+# Admin authentication uses Supabase Auth (email/password)
+# Create admin users in Supabase Dashboard -> Authentication -> Users
 ```
 
 4. Set up Resend (for email notifications):
@@ -100,14 +98,11 @@ ADMIN_API_KEY=your_supabase_service_role_key_here
 6. Set up Admin Authentication:
 
    - Go to your Supabase Dashboard
-   - Navigate to **Settings** → **API**
-   - Find the **service_role** section (NOT anon/public)
-   - Click **"Reveal"** to show the full Service Role Key
-   - Copy the **Service Role Key** (secret key)
-   - ⚠️ **Important**: Use Service Role Key for admin - it has full access needed for admin operations
-   - Add the key to your `.env.local` file as `ADMIN_API_KEY`
-   - Example: `ADMIN_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (your full service role key)
-   - Now you can log in at `/admin/login` using this API key
+   - Navigate to **Authentication** → **Users**
+   - Click **"Add user"** to create a new admin user
+   - Enter an email address and password for your admin account
+   - ⚠️ **Important**: Save these credentials - you'll use them to log into the admin panel
+   - Now you can log in at `/admin-login` using the email and password you created
 
 7. Run the development server:
 ```bash
@@ -259,25 +254,20 @@ const order = await createOrder({
 
 ## Admin Panel
 
-The admin panel is now available! Access it at `/admin/login`.
+The admin panel is now available! Access it at `/admin-login`.
 
 ### Setting Up Admin Access
 
-1. **Get Your Admin API Key:**
+1. **Create an Admin User:**
    - Go to your Supabase Dashboard
-   - Navigate to **Settings** → **API**
-   - Find the **service_role** section (NOT anon/public)
-   - Click **"Reveal"** to show the full key
-   - Copy the **Service Role Key** (secret key)
-   - ⚠️ **Important**: Use Service Role Key, NOT anon key - it has full access needed for admin operations
-   - Add it to your `.env.local` file:
-     ```env
-     ADMIN_API_KEY=your_supabase_service_role_key_here
-     ```
+   - Navigate to **Authentication** → **Users**
+   - Click **"Add user"** to create a new admin user
+   - Enter an email address and password for your admin account
+   - ⚠️ **Important**: Save these credentials - you'll use them to log into the admin panel
 
 2. **Log In to Admin Panel:**
-   - Go to `http://localhost:3000/admin/login` (or your production URL)
-   - Enter the API key you copied from Supabase
+   - Go to `http://localhost:3000/admin-login` (or your production URL)
+   - Enter the email and password you created in Supabase
    - You'll be redirected to the admin dashboard
 
 ### Admin Features
@@ -285,11 +275,11 @@ The admin panel is now available! Access it at `/admin/login`.
 - **Dashboard**: View statistics and recent orders
 - **Orders Management**: View and manage customer orders
 - **Products Management**: Manage products (coming soon)
-- **Authentication**: Secure login using API key authentication
+- **Authentication**: Secure login using email and password (Supabase Auth)
 
 ### Admin Routes
 
-- `/admin/login` - Admin login page
+- `/admin-login` - Admin login page
 - `/admin` - Admin dashboard
 - `/admin/orders` - Orders management (coming soon)
 - `/admin/products` - Products management (coming soon)

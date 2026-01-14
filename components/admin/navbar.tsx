@@ -15,7 +15,7 @@ export function AdminNavbar() {
 
       if (response.ok) {
         toast.success("Успешно излизане");
-        router.push("/admin/login");
+        router.push("/admin-login");
         router.refresh();
       } else {
         toast.error("Грешка при излизане");
@@ -57,6 +57,12 @@ export function AdminNavbar() {
                 className="border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
               >
                 Продукти
+              </Link>
+              <Link
+                href="/admin/collections"
+                className="border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
+              >
+                Колекции
               </Link>
             </div>
           </div>

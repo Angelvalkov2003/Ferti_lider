@@ -1,66 +1,47 @@
-import { cookies } from "next/headers";
-
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
-
-if (!ADMIN_API_KEY) {
-  throw new Error("ADMIN_API_KEY is not set in environment variables");
-}
-
-const ADMIN_SESSION_COOKIE = "admin_session";
+import { getSupabaseServerClient } from "./server";
 
 /**
- * Verify admin API key
- */
-export function verifyAdminApiKey(apiKey: string): boolean {
-  return apiKey === ADMIN_API_KEY;
-}
-
-/**
- * Check if admin is authenticated (has valid session)
+ * Check if admin is authenticated (has valid Supabase Auth session)
  */
 export async function isAdmin(): Promise<boolean> {
-  const cookieStore = await cookies();
-  const session = cookieStore.get(ADMIN_SESSION_COOKIE);
+  try {
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-  if (!session?.value) {
+    if (error || !user) {
+      return false;
+    }
+
+    // User is authenticated - for MVP, any authenticated user can access admin
+    // You can add role-based checks here if needed (e.g., check admins table)
+    return true;
+  } catch (error) {
+    console.error("Error checking admin status:", error);
     return false;
   }
-
-  // Verify the session token matches the admin API key
-  // In a production app, you might want to use JWT tokens or more secure session management
-  return session.value === ADMIN_API_KEY;
 }
 
 /**
- * Create admin session (set cookie)
+ * Get current authenticated user
  */
-export async function createAdminSession(apiKey: string): Promise<boolean> {
-  if (!verifyAdminApiKey(apiKey)) {
-    return false;
+export async function getCurrentUser() {
+  try {
+    const supabase = await getSupabaseServerClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !user) {
+      return null;
+    }
+
+    return user;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    return null;
   }
-
-  const cookieStore = await cookies();
-  cookieStore.set(ADMIN_SESSION_COOKIE, ADMIN_API_KEY, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/",
-  });
-
-  return true;
-}
-
-/**
- * Destroy admin session (remove cookie)
- */
-export async function destroyAdminSession(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(ADMIN_SESSION_COOKIE, "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 0,
-    path: "/",
-  });
 }

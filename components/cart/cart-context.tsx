@@ -8,26 +8,17 @@ import type {
 } from "lib/types";
 import React, {
   createContext,
-  use,
   useContext,
-  useMemo,
-  useOptimistic,
+  useEffect,
+  useState,
 } from "react";
 
 type UpdateType = "plus" | "minus" | "delete";
 
-type CartAction =
-  | {
-      type: "UPDATE_ITEM";
-      payload: { itemId: string; updateType: UpdateType };
-    }
-  | {
-      type: "ADD_ITEM";
-      payload: { variant: ProductVariant; product: Product };
-    };
-
 type CartContextType = {
-  cartPromise: Promise<Cart | null>;
+  cart: Cart | null;
+  updateCartItem: (itemId: string, updateType: UpdateType) => void;
+  addCartItem: (variant: ProductVariant, product: Product) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -99,12 +90,93 @@ function createEmptyCart(): Cart {
   };
 }
 
-function cartReducer(state: Cart | null, action: CartAction): Cart {
-  const currentCart = state || createEmptyCart();
 
-  switch (action.type) {
-    case "UPDATE_ITEM": {
-      const { itemId, updateType } = action.payload;
+const CART_STORAGE_KEY = "ecommerce_cart";
+
+function loadCartFromStorage(): Cart {
+  if (typeof window === "undefined") {
+    return {
+      id: undefined,
+      items: [],
+      totalQuantity: 0,
+      subtotal: 0,
+      total: 0,
+      currency: "USD",
+    };
+  }
+
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Recalculate totals in case prices changed
+      const totalQuantity = parsed.items.reduce(
+        (sum: number, item: CartItem) => sum + item.quantity,
+        0
+      );
+      const subtotal = parsed.items.reduce(
+        (sum: number, item: CartItem) => sum + item.price * item.quantity,
+        0
+      );
+      return {
+        ...parsed,
+        totalQuantity,
+        subtotal,
+        total: subtotal,
+      };
+    }
+  } catch (error) {
+    console.error("Error loading cart from localStorage:", error);
+  }
+
+  return {
+    id: undefined,
+    items: [],
+    totalQuantity: 0,
+    subtotal: 0,
+    total: 0,
+    currency: "USD",
+  };
+}
+
+function saveCartToStorage(cart: Cart | null) {
+  if (typeof window === "undefined") return;
+
+  try {
+    if (cart && cart.items.length > 0) {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+    } else {
+      localStorage.removeItem(CART_STORAGE_KEY);
+    }
+  } catch (error) {
+    console.error("Error saving cart to localStorage:", error);
+  }
+}
+
+export function CartProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [cart, setCart] = useState<Cart | null>(null);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const loadedCart = loadCartFromStorage();
+    setCart(loadedCart);
+  }, []);
+
+  // Save to localStorage whenever cart changes
+  useEffect(() => {
+    if (cart) {
+      saveCartToStorage(cart);
+    }
+  }, [cart]);
+
+  const updateCartItem = (itemId: string, updateType: UpdateType) => {
+    setCart((currentCart) => {
+      if (!currentCart) return currentCart;
+
       const updatedItems = currentCart.items
         .map((item) =>
           item.id === itemId
@@ -128,10 +200,13 @@ function cartReducer(state: Cart | null, action: CartAction): Cart {
         ...updateCartTotals(updatedItems),
         items: updatedItems,
       };
-    }
-    case "ADD_ITEM": {
-      const { variant, product } = action.payload;
-      const existingItem = currentCart.items.find(
+    });
+  };
+
+  const addCartItem = (variant: ProductVariant, product: Product) => {
+    setCart((currentCart) => {
+      const cart = currentCart || createEmptyCart();
+      const existingItem = cart.items.find(
         (item) => item.variantId === variant.id,
       );
       const updatedItem = createOrUpdateCartItem(
@@ -141,31 +216,21 @@ function cartReducer(state: Cart | null, action: CartAction): Cart {
       );
 
       const updatedItems = existingItem
-        ? currentCart.items.map((item) =>
+        ? cart.items.map((item) =>
             item.variantId === variant.id ? updatedItem : item,
           )
-        : [...currentCart.items, updatedItem];
+        : [...cart.items, updatedItem];
 
       return {
-        ...currentCart,
+        ...cart,
         ...updateCartTotals(updatedItems),
         items: updatedItems,
       };
-    }
-    default:
-      return currentCart;
-  }
-}
+    });
+  };
 
-export function CartProvider({
-  children,
-  cartPromise,
-}: {
-  children: React.ReactNode;
-  cartPromise: Promise<Cart | null>;
-}) {
   return (
-    <CartContext.Provider value={{ cartPromise }}>
+    <CartContext.Provider value={{ cart, updateCartItem, addCartItem }}>
       {children}
     </CartContext.Provider>
   );
@@ -177,29 +242,5 @@ export function useCart() {
     throw new Error("useCart must be used within a CartProvider");
   }
 
-  const initialCart = use(context.cartPromise);
-  const [optimisticCart, updateOptimisticCart] = useOptimistic(
-    initialCart,
-    cartReducer,
-  );
-
-  const updateCartItem = (itemId: string, updateType: UpdateType) => {
-    updateOptimisticCart({
-      type: "UPDATE_ITEM",
-      payload: { itemId, updateType },
-    });
-  };
-
-  const addCartItem = (variant: ProductVariant, product: Product) => {
-    updateOptimisticCart({ type: "ADD_ITEM", payload: { variant, product } });
-  };
-
-  return useMemo(
-    () => ({
-      cart: optimisticCart,
-      updateCartItem,
-      addCartItem,
-    }),
-    [optimisticCart],
-  );
+  return context;
 }

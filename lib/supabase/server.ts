@@ -1,8 +1,8 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl) {
   throw new Error(
@@ -11,10 +11,10 @@ if (!supabaseUrl) {
   );
 }
 
-if (!supabaseServiceKey) {
+if (!supabaseAnonKey) {
   throw new Error(
-    "Missing SUPABASE_SERVICE_ROLE_KEY. Please add it to your .env.local file.\n" +
-    "Get it from Supabase Dashboard -> Settings -> API -> service_role key"
+    "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY. Please add it to your .env.local file.\n" +
+    "Get it from Supabase Dashboard -> Settings -> API -> anon public key"
   );
 }
 
@@ -28,14 +28,42 @@ try {
   );
 }
 
-export async function createServerClient() {
-  const cookieStore = await cookies();
-  
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value;
+export async function getSupabaseServerClient() {
+  try {
+    const cookieStore = await cookies();
+    
+    return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          try {
+            cookieStore.set(name, value, options);
+          } catch (error) {
+            // The `set` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+        remove(name: string, options: any) {
+          try {
+            cookieStore.set(name, "", { ...options, maxAge: 0 });
+          } catch (error) {
+            // The `delete` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
       },
-    },
-  });
+    });
+  } catch (error) {
+    console.error("Error creating Supabase server client:", error);
+    throw error;
+  }
+}
+
+// Legacy export for backward compatibility
+export async function createServerClient() {
+  return getSupabaseServerClient();
 }
