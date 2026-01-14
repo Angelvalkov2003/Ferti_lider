@@ -1,52 +1,53 @@
 "use server";
 
-import { TAGS } from "lib/constants";
 import {
   addToCart,
   createCart,
   getCart,
   removeFromCart,
-  updateCart,
-} from "lib/shopify";
-import { updateTag } from "next/cache";
+  updateCartItem,
+} from "lib/supabase/cart";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { createCheckoutSession } from "lib/stripe";
+import { baseUrl } from "lib/utils";
 
 export async function addItem(
   prevState: any,
-  selectedVariantId: string | undefined
-) {
-  if (!selectedVariantId) {
-    return "Error adding item to cart";
+  payload: {
+    productId: string;
+    variantId: string;
+    price: number;
   }
-
+) {
   try {
-    await addToCart([{ merchandiseId: selectedVariantId, quantity: 1 }]);
-    updateTag(TAGS.cart);
+    const cookieStore = await cookies();
+    let cartId = cookieStore.get("cartId")?.value;
+
+    if (!cartId) {
+      cartId = await createCart();
+      cookieStore.set("cartId", cartId);
+    }
+
+    await addToCart(cartId, payload.productId, payload.variantId, 1, payload.price);
   } catch (e) {
+    console.error(e);
     return "Error adding item to cart";
   }
 }
 
-export async function removeItem(prevState: any, merchandiseId: string) {
+export async function removeItem(prevState: any, itemId: string) {
   try {
-    const cart = await getCart();
+    const cookieStore = await cookies();
+    const cartId = cookieStore.get("cartId")?.value;
 
-    if (!cart) {
-      return "Error fetching cart";
+    if (!cartId) {
+      return "Cart not found";
     }
 
-    const lineItem = cart.lines.find(
-      (line) => line.merchandise.id === merchandiseId
-    );
-
-    if (lineItem && lineItem.id) {
-      await removeFromCart([lineItem.id]);
-      updateTag(TAGS.cart);
-    } else {
-      return "Item not found in cart";
-    }
+    await removeFromCart(cartId, itemId);
   } catch (e) {
+    console.error(e);
     return "Error removing item from cart";
   }
 }
@@ -54,41 +55,21 @@ export async function removeItem(prevState: any, merchandiseId: string) {
 export async function updateItemQuantity(
   prevState: any,
   payload: {
-    merchandiseId: string;
+    itemId: string;
     quantity: number;
   }
 ) {
-  const { merchandiseId, quantity } = payload;
+  const { itemId, quantity } = payload;
 
   try {
-    const cart = await getCart();
+    const cookieStore = await cookies();
+    const cartId = cookieStore.get("cartId")?.value;
 
-    if (!cart) {
-      return "Error fetching cart";
+    if (!cartId) {
+      return "Cart not found";
     }
 
-    const lineItem = cart.lines.find(
-      (line) => line.merchandise.id === merchandiseId
-    );
-
-    if (lineItem && lineItem.id) {
-      if (quantity === 0) {
-        await removeFromCart([lineItem.id]);
-      } else {
-        await updateCart([
-          {
-            id: lineItem.id,
-            merchandiseId,
-            quantity,
-          },
-        ]);
-      }
-    } else if (quantity > 0) {
-      // If the item doesn't exist in the cart and quantity > 0, add it
-      await addToCart([{ merchandiseId, quantity }]);
-    }
-
-    updateTag(TAGS.cart);
+    await updateCartItem(cartId, itemId, quantity);
   } catch (e) {
     console.error(e);
     return "Error updating item quantity";
@@ -96,11 +77,28 @@ export async function updateItemQuantity(
 }
 
 export async function redirectToCheckout() {
-  let cart = await getCart();
-  redirect(cart!.checkoutUrl);
+  const cart = await getCart();
+  
+  if (!cart || cart.items.length === 0) {
+    return "Cart is empty";
+  }
+
+  try {
+    const session = await createCheckoutSession(
+      cart,
+      `${baseUrl}/checkout/success`,
+      `${baseUrl}/checkout/cancel`
+    );
+
+    redirect(session.url!);
+  } catch (e) {
+    console.error(e);
+    return "Error creating checkout session";
+  }
 }
 
 export async function createCartAndSetCookie() {
-  let cart = await createCart();
-  (await cookies()).set("cartId", cart.id!);
+  const cookieStore = await cookies();
+  const cartId = await createCart();
+  cookieStore.set("cartId", cartId);
 }

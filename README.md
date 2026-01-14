@@ -1,75 +1,322 @@
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fcommerce&project-name=commerce&repo-name=commerce&demo-title=Next.js%20Commerce&demo-url=https%3A%2F%2Fdemo.vercel.store&demo-image=https%3A%2F%2Fbigcommerce-demo-asset-ksvtgfvnd.vercel.app%2Fbigcommerce.png&env=COMPANY_NAME,SHOPIFY_REVALIDATION_SECRET,SHOPIFY_STORE_DOMAIN,SHOPIFY_STOREFRONT_ACCESS_TOKEN,SITE_NAME)
+# Ecommerce Template
 
-# Next.js Commerce
+A modern, high-performance ecommerce store built with Next.js 15, Supabase, Cloudinary, and Stripe.
 
-A high-performance, server-rendered Next.js App Router ecommerce application.
+## Features
 
-This template uses React Server Components, Server Actions, `Suspense`, `useOptimistic`, and more.
+- 🛍️ Full ecommerce functionality (products, cart, checkout)
+- 🗄️ Supabase for database and authentication
+- 🖼️ Cloudinary for image management
+- 💳 Stripe for payments
+- 📧 Email notifications (contact form & new orders)
+- 🎨 Modern UI with Tailwind CSS
+- ⚡ Server Components and Server Actions
+- 📱 Responsive design
+- 🌙 Dark mode support
 
-<h3 id="v1-note"></h3>
+## Tech Stack
 
-> Note: Looking for Next.js Commerce v1? View the [code](https://github.com/vercel/commerce/tree/v1), [demo](https://commerce-v1.vercel.store), and [release notes](https://github.com/vercel/commerce/releases/tag/v1).
+- **Framework**: Next.js 15 (App Router)
+- **Database**: Supabase (PostgreSQL)
+- **Images**: Cloudinary
+- **Payments**: Stripe
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
 
-## Providers
+## Getting Started
 
-Vercel will only be actively maintaining a Shopify version [as outlined in our vision and strategy for Next.js Commerce](https://github.com/vercel/commerce/pull/966).
+### Prerequisites
 
-Vercel is happy to partner and work with any commerce provider to help them get a similar template up and running and listed below. Alternative providers should be able to fork this repository and swap out the `lib/shopify` file with their own implementation while leaving the rest of the template mostly unchanged.
+- Node.js 18+ and pnpm
+- Supabase account
+- Cloudinary account
+- Stripe account
+- Resend account (for email notifications)
 
-- Shopify (this repository)
-- [BigCommerce](https://github.com/bigcommerce/nextjs-commerce) ([Demo](https://next-commerce-v2.vercel.app/))
-- [Ecwid by Lightspeed](https://github.com/Ecwid/ecwid-nextjs-commerce/) ([Demo](https://ecwid-nextjs-commerce.vercel.app/))
-- [Geins](https://github.com/geins-io/vercel-nextjs-commerce) ([Demo](https://geins-nextjs-commerce-starter.vercel.app/))
-- [Medusa](https://github.com/medusajs/vercel-commerce) ([Demo](https://medusa-nextjs-commerce.vercel.app/))
-- [Prodigy Commerce](https://github.com/prodigycommerce/nextjs-commerce) ([Demo](https://prodigy-nextjs-commerce.vercel.app/))
-- [Saleor](https://github.com/saleor/nextjs-commerce) ([Demo](https://saleor-commerce.vercel.app/))
-- [Shopware](https://github.com/shopwareLabs/vercel-commerce) ([Demo](https://shopware-vercel-commerce-react.vercel.app/))
-- [Swell](https://github.com/swellstores/verswell-commerce) ([Demo](https://verswell-commerce.vercel.app/))
-- [Umbraco](https://github.com/umbraco/Umbraco.VercelCommerce.Demo) ([Demo](https://vercel-commerce-demo.umbraco.com/))
-- [Wix](https://github.com/wix/headless-templates/tree/main/nextjs/commerce) ([Demo](https://wix-nextjs-commerce.vercel.app/))
-- [Fourthwall](https://github.com/FourthwallHQ/vercel-commerce) ([Demo](https://vercel-storefront.fourthwall.app/))
+### Installation
 
-> Note: Providers, if you are looking to use similar products for your demo, you can [download these assets](https://drive.google.com/file/d/1q_bKerjrwZgHwCw0ovfUMW6He9VtepO_/view?usp=sharing).
+1. Clone the repository:
+```bash
+git clone https://github.com/Angelvalkov2003/ecommercetemplate.git
+cd ecommercetemplate
+```
 
-## Integrations
-
-Integrations enable upgraded or additional functionality for Next.js Commerce
-
-- [Orama](https://github.com/oramasearch/nextjs-commerce) ([Demo](https://vercel-commerce.oramasearch.com/))
-
-  - Upgrades search to include typeahead with dynamic re-rendering, vector-based similarity search, and JS-based configuration.
-  - Search runs entirely in the browser for smaller catalogs or on a CDN for larger.
-
-- [React Bricks](https://github.com/ReactBricks/nextjs-commerce-rb) ([Demo](https://nextjs-commerce.reactbricks.com/))
-  - Edit pages, product details, and footer content visually using [React Bricks](https://www.reactbricks.com) visual headless CMS.
-
-## Running locally
-
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js Commerce. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables) for this, but a `.env` file is all that is necessary.
-
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control your Shopify store.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
+2. Install dependencies:
 ```bash
 pnpm install
+```
+
+3. Set up environment variables:
+Create a `.env.local` file in the root directory:
+
+```env
+# Site Configuration
+SITE_NAME=My Ecommerce Store
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Contact Email - Used for contact form submissions and new order notifications
+CONTACT_EMAIL=your-email@example.com
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Cloudinary Configuration
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
+
+# Stripe Configuration
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+STRIPE_SECRET_KEY=your_stripe_secret_key
+
+# Resend Configuration (for sending emails)
+RESEND_API_KEY=your_resend_api_key
+
+# Admin Configuration
+# IMPORTANT: Use the SERVICE ROLE KEY (secret), NOT the anon key
+# Get this from Supabase Dashboard -> Settings -> API -> service_role -> Reveal
+# This key bypasses RLS and is safe for admin panel (not public)
+ADMIN_API_KEY=your_supabase_service_role_key_here
+```
+
+4. Set up Resend (for email notifications):
+
+   - Create an account at [Resend](https://resend.com)
+   - Get your API key from the dashboard
+   - Add it to your `.env.local` file as `RESEND_API_KEY`
+   - Set your `CONTACT_EMAIL` in `.env.local` (this is where you'll receive contact form submissions and new order notifications)
+
+5. Set up Supabase database:
+
+   Run the SQL script from `supabase_schema.sql` in your Supabase SQL Editor to create the following tables:
+
+   - `categories` - Product categories
+   - `products` - Store product information
+   - `product_images` - Product images with ordering
+   - `orders` - Customer orders with embedded customer information
+
+6. Set up Admin Authentication:
+
+   - Go to your Supabase Dashboard
+   - Navigate to **Settings** → **API**
+   - Find the **service_role** section (NOT anon/public)
+   - Click **"Reveal"** to show the full Service Role Key
+   - Copy the **Service Role Key** (secret key)
+   - ⚠️ **Important**: Use Service Role Key for admin - it has full access needed for admin operations
+   - Add the key to your `.env.local` file as `ADMIN_API_KEY`
+   - Example: `ADMIN_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (your full service role key)
+   - Now you can log in at `/admin/login` using this API key
+
+7. Run the development server:
+```bash
 pnpm dev
 ```
 
-Your app should now be running on [localhost:3000](http://localhost:3000/).
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-<details>
-  <summary>Expand if you work at Vercel and want to run locally and / or contribute</summary>
+## Database Schema
 
-1. Run `vc link`.
-1. Select the `Vercel Solutions` scope.
-1. Connect to the existing `commerce-shopify` project.
-1. Run `vc env pull` to get environment variables.
-1. Run `pnpm dev` to ensure everything is working correctly.
-</details>
+### Products Table
+```sql
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  handle TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  description_html TEXT,
+  price DECIMAL(10,2) NOT NULL,
+  compare_at_price DECIMAL(10,2),
+  featured_image JSONB,
+  images JSONB[],
+  variants JSONB[],
+  tags TEXT[],
+  category TEXT,
+  available BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-## Vercel, Next.js Commerce, and Shopify Integration Guide
+### Collections Table
+```sql
+CREATE TABLE collections (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  handle TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT,
+  image JSONB,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-You can use this comprehensive [integration guide](https://vercel.com/docs/integrations/ecommerce/shopify) with step-by-step instructions on how to configure Shopify as a headless CMS using Next.js Commerce as your headless Shopify storefront on Vercel.
+### Carts Table
+```sql
+CREATE TABLE carts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Cart Items Table
+```sql
+CREATE TABLE cart_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  cart_id UUID REFERENCES carts(id) ON DELETE CASCADE,
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+  variant_id UUID,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  price DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+### Orders Table
+```sql
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID,
+  items JSONB NOT NULL,
+  total DECIMAL(10,2) NOT NULL,
+  currency TEXT DEFAULT 'USD',
+  status TEXT DEFAULT 'pending',
+  payment_intent_id TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+## Project Structure
+
+```
+├── app/                    # Next.js App Router pages
+│   ├── admin/             # Admin panel pages
+│   │   ├── login/         # Admin login page
+│   │   └── page.tsx       # Admin dashboard
+│   ├── api/               # API routes
+│   │   └── contact/       # Contact form API endpoint
+│   ├── product/           # Product pages
+│   ├── search/            # Search and collection pages
+│   └── layout.tsx         # Root layout
+├── components/            # React components
+│   ├── admin/             # Admin components
+│   │   └── navbar.tsx     # Admin navigation
+│   ├── cart/             # Shopping cart components
+│   ├── layout/            # Layout components
+│   └── product/          # Product components
+├── lib/                   # Utility functions
+│   ├── supabase/         # Supabase client and functions
+│   │   ├── auth.ts       # Authentication helpers
+│   │   ├── orders.ts     # Order management functions
+│   │   └── ...
+│   ├── cloudinary.ts     # Cloudinary utilities
+│   ├── email.ts          # Email sending functions
+│   ├── stripe.ts         # Stripe integration
+│   └── types.ts          # TypeScript types
+├── middleware.ts          # Next.js middleware for auth
+└── public/               # Static assets
+```
+
+## Email Notifications
+
+The project includes email notification functionality:
+
+- **Contact Form**: When someone submits the contact form, you'll receive an email at `CONTACT_EMAIL`
+- **New Orders**: When a new order is created using `createOrder()` from `lib/supabase/orders.ts`, you'll automatically receive an email notification
+
+### Usage Examples
+
+**Contact Form API:**
+```typescript
+// POST /api/contact
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "message": "Hello!",
+  "subject": "Optional subject"
+}
+```
+
+**Create Order with Email Notification:**
+```typescript
+import { createOrder } from "lib/supabase/orders";
+
+const order = await createOrder({
+  customer_name: "John Doe",
+  customer_email: "john@example.com",
+  customer_phone: "+1234567890",
+  customer_address: "123 Main St",
+  products: [
+    { id: "prod-1", name: "Product 1", price: 29.99, quantity: 2 }
+  ],
+  total_price: 59.98,
+  comment: "Please deliver in the morning"
+});
+// Email notification is automatically sent to CONTACT_EMAIL
+```
+
+## Admin Panel
+
+The admin panel is now available! Access it at `/admin/login`.
+
+### Setting Up Admin Access
+
+1. **Get Your Admin API Key:**
+   - Go to your Supabase Dashboard
+   - Navigate to **Settings** → **API**
+   - Find the **service_role** section (NOT anon/public)
+   - Click **"Reveal"** to show the full key
+   - Copy the **Service Role Key** (secret key)
+   - ⚠️ **Important**: Use Service Role Key, NOT anon key - it has full access needed for admin operations
+   - Add it to your `.env.local` file:
+     ```env
+     ADMIN_API_KEY=your_supabase_service_role_key_here
+     ```
+
+2. **Log In to Admin Panel:**
+   - Go to `http://localhost:3000/admin/login` (or your production URL)
+   - Enter the API key you copied from Supabase
+   - You'll be redirected to the admin dashboard
+
+### Admin Features
+
+- **Dashboard**: View statistics and recent orders
+- **Orders Management**: View and manage customer orders
+- **Products Management**: Manage products (coming soon)
+- **Authentication**: Secure login using API key authentication
+
+### Admin Routes
+
+- `/admin/login` - Admin login page
+- `/admin` - Admin dashboard
+- `/admin/orders` - Orders management (coming soon)
+- `/admin/products` - Products management (coming soon)
+
+All admin routes are protected and require authentication.
+
+## Deployment
+
+### Vercel
+
+1. Push your code to GitHub
+2. Import your repository in Vercel
+3. Add your environment variables
+4. Deploy!
+
+### Other Platforms
+
+This project can be deployed to any platform that supports Next.js:
+- Netlify
+- Railway
+- Render
+- AWS Amplify
+
+## License
+
+MIT
+
+## Support
+
+For issues and questions, please open an issue on GitHub.

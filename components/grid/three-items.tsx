@@ -1,7 +1,7 @@
 import { GridTileImage } from "components/grid/tile";
-import { getCollectionProducts } from "lib/shopify";
-import type { Product } from "lib/shopify/types";
+import type { Product } from "lib/types";
 import Link from "next/link";
+import { formatPrice } from "lib/utils";
 
 function ThreeItemGridItem({
   item,
@@ -34,12 +34,12 @@ function ThreeItemGridItem({
               : "(min-width: 768px) 33vw, 100vw"
           }
           priority={priority}
-          alt={item.title}
+          alt={item.featuredImage.altText || item.title}
           label={{
             position: size === "full" ? "center" : "bottom",
-            title: item.title as string,
-            amount: item.priceRange.maxVariantPrice.amount,
-            currencyCode: item.priceRange.maxVariantPrice.currencyCode,
+            title: item.title,
+            amount: item.price.toString(),
+            currencyCode: "USD",
           }}
         />
       </Link>
@@ -47,15 +47,12 @@ function ThreeItemGridItem({
   );
 }
 
-export async function ThreeItemGrid() {
-  // Collections that start with `hidden-*` are hidden from the search page.
-  const homepageItems = await getCollectionProducts({
-    collection: "hidden-homepage-featured-items",
-  });
+export function ThreeItemGrid({ products }: { products: Product[] }) {
+  if (!products || products.length < 3) {
+    return null;
+  }
 
-  if (!homepageItems[0] || !homepageItems[1] || !homepageItems[2]) return null;
-
-  const [firstProduct, secondProduct, thirdProduct] = homepageItems;
+  const [firstProduct, secondProduct, thirdProduct] = products.slice(0, 3);
 
   return (
     <section className="mx-auto grid max-w-(--breakpoint-2xl) gap-4 px-4 pb-4 md:grid-cols-6 md:grid-rows-2 lg:max-h-[calc(100vh-200px)]">

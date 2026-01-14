@@ -1,12 +1,9 @@
-import { getCollectionProducts } from "lib/shopify";
+import { getProducts } from "lib/supabase/products";
 import Link from "next/link";
 import { GridTileImage } from "./grid/tile";
 
 export async function Carousel() {
-  // Collections that start with `hidden-*` are hidden from the search page.
-  const products = await getCollectionProducts({
-    collection: "hidden-homepage-carousel",
-  });
+  const products = await getProducts({ limit: 8 });
 
   if (!products?.length) return null;
 
@@ -29,8 +26,8 @@ export async function Carousel() {
                 alt={product.title}
                 label={{
                   title: product.title,
-                  amount: product.priceRange.maxVariantPrice.amount,
-                  currencyCode: product.priceRange.maxVariantPrice.currencyCode,
+                  amount: product.price.toString(),
+                  currencyCode: "USD",
                 }}
                 src={product.featuredImage?.url}
                 fill

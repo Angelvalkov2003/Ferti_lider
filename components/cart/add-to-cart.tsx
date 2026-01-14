@@ -3,23 +3,23 @@
 import { PlusIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { addItem } from "components/cart/actions";
-import { Product, ProductVariant } from "lib/shopify/types";
+import { Product, ProductVariant } from "lib/types";
 import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import { useCart } from "./cart-context";
 
 function SubmitButton({
-  availableForSale,
+  available,
   selectedVariantId,
 }: {
-  availableForSale: boolean;
+  available: boolean;
   selectedVariantId: string | undefined;
 }) {
   const buttonClasses =
     "relative flex w-full items-center justify-center rounded-full bg-blue-600 p-4 tracking-wide text-white";
   const disabledClasses = "cursor-not-allowed opacity-60 hover:opacity-60";
 
-  if (!availableForSale) {
+  if (!available) {
     return (
       <button disabled className={clsx(buttonClasses, disabledClasses)}>
         Out Of Stock
@@ -58,32 +58,41 @@ function SubmitButton({
 }
 
 export function AddToCart({ product }: { product: Product }) {
-  const { variants, availableForSale } = product;
+  const { variants, available } = product;
   const { addCartItem } = useCart();
   const searchParams = useSearchParams();
   const [message, formAction] = useActionState(addItem, null);
 
-  const variant = variants.find((variant: ProductVariant) =>
-    variant.selectedOptions.every(
+  const variant = variants.find((variant: ProductVariant) => {
+    if (!variant.selectedOptions || variant.selectedOptions.length === 0) {
+      return true;
+    }
+    return variant.selectedOptions.every(
       (option) => option.value === searchParams.get(option.name.toLowerCase()),
-    ),
-  );
-  const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
+    );
+  });
+  const defaultVariantId = variants.length === 1 ? variants[0]?.id : variants[0]?.id || product.id;
   const selectedVariantId = variant?.id || defaultVariantId;
-  const addItemAction = formAction.bind(null, selectedVariantId);
-  const finalVariant = variants.find(
-    (variant) => variant.id === selectedVariantId,
-  )!;
+  const finalVariant = variant || variants[0] || {
+    id: product.id,
+    title: "Default",
+    price: product.price,
+    available: product.available,
+  };
 
   return (
     <form
       action={async () => {
         addCartItem(finalVariant, product);
-        addItemAction();
+        await formAction({
+          productId: product.id,
+          variantId: selectedVariantId,
+          price: finalVariant.price,
+        });
       }}
     >
       <SubmitButton
-        availableForSale={availableForSale}
+        available={available}
         selectedVariantId={selectedVariantId}
       />
       <p aria-live="polite" className="sr-only" role="status">

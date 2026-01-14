@@ -1,6 +1,6 @@
 import Grid from "components/grid";
 import { GridTileImage } from "components/grid/tile";
-import { Product } from "lib/shopify/types";
+import { Product } from "lib/types";
 import Link from "next/link";
 
 export default function ProductGridItems({
@@ -21,8 +21,8 @@ export default function ProductGridItems({
               alt={product.title}
               label={{
                 title: product.title,
-                amount: product.priceRange.maxVariantPrice.amount,
-                currencyCode: product.priceRange.maxVariantPrice.currencyCode,
+                amount: product.price.toString(),
+                currencyCode: "USD",
               }}
               src={product.featuredImage?.url}
               fill
