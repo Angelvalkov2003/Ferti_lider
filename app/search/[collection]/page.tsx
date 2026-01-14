@@ -16,7 +16,7 @@ export async function generateMetadata(props: {
 
   return {
     title: collection.title,
-    description: collection.description || `Продукти от ${collection.title}`,
+    description: `Продукти от ${collection.title}`,
   };
 }
 
