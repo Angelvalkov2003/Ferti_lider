@@ -156,8 +156,9 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         // Update the image with the uploaded URL
         setFormData((prev) => {
           const updated = [...prev.images];
+          const existingImage = updated[newIndex];
           updated[newIndex] = {
-            ...updated[newIndex],
+            id: existingImage?.id || tempId,
             url: data.url,
             altText: prev.title,
           };
