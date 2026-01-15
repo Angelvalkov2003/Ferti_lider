@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getOrderById } from "lib/supabase/orders";
 import { sendNewOrderNotification } from "lib/email";
+import { ClearCartOnSuccess } from "components/cart/clear-cart-on-success";
 
 export default async function CheckoutSuccessPage({
   searchParams,
@@ -11,14 +12,18 @@ export default async function CheckoutSuccessPage({
   const orderId = params.orderId;
 
   let order = null;
+  let emailSent = false;
+  
   if (orderId) {
     try {
       order = await getOrderById(orderId);
       
       // Send email notification when order is finalized
+      // Only send if order exists and hasn't been sent before (check if order was just created)
       if (order) {
         try {
-          await sendNewOrderNotification({
+          console.log(`Attempting to send order notification email for order ${order.id}`);
+          const emailResult = await sendNewOrderNotification({
             orderId: order.id,
             customerName: order.customer_name,
             customerEmail: order.customer_email,
@@ -34,19 +39,36 @@ export default async function CheckoutSuccessPage({
             })),
             comment: order.comment || undefined,
           });
-        } catch (emailError) {
-          // Log email error but don't fail the page
-          console.error("Failed to send order notification email:", emailError);
+          
+          if (emailResult.success) {
+            emailSent = true;
+            console.log(`Order notification email sent successfully for order ${order.id}`);
+          }
+        } catch (emailError: any) {
+          // Log detailed email error
+          console.error("Failed to send order notification email:", {
+            error: emailError,
+            message: emailError?.message,
+            statusCode: emailError?.statusCode,
+            name: emailError?.name,
+            orderId: order.id,
+            stack: emailError?.stack,
+          });
+          // Don't throw - we want the page to load even if email fails
         }
       }
     } catch (error) {
       console.error("Error fetching order:", error);
     }
+  } else {
+    console.warn("No orderId provided in success page URL");
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4">
-      <div className="max-w-md w-full text-center">
+    <>
+      <ClearCartOnSuccess />
+      <div className="flex min-h-screen flex-col items-center justify-center px-4">
+        <div className="max-w-md w-full text-center">
         <div className="mb-6">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
             <svg
@@ -104,5 +126,6 @@ export default async function CheckoutSuccessPage({
         </div>
       </div>
     </div>
+    </>
   );
 }

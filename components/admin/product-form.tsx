@@ -29,6 +29,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [uploadingImages, setUploadingImages] = useState<Set<string>>(new Set());
+  const [handleError, setHandleError] = useState<string | null>(null);
   const [formData, setFormData] = useState<ProductFormData>({
     handle: product?.handle || "",
     title: product?.title || "",
@@ -89,11 +90,23 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         router.push("/admin/products");
         router.refresh();
       } else {
-        toast.error(result.error || "Грешка при запазване на продукт");
+        const errorMessage = result.error || "Грешка при запазване на продукт";
+        // Check if error is about duplicate handle
+        if (errorMessage.includes("Slug") && errorMessage.includes("зает")) {
+          setHandleError(errorMessage);
+        } else {
+          toast.error(errorMessage);
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving product:", error);
-      toast.error("Грешка при запазване на продукт");
+      const errorMessage = error.message || "Грешка при запазване на продукт";
+      // Check if error is about duplicate handle
+      if (errorMessage.includes("Slug") && errorMessage.includes("зает")) {
+        setHandleError(errorMessage);
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
@@ -253,6 +266,10 @@ export function ProductForm({ product, collections }: ProductFormProps) {
   const handleHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatHandle(e.target.value);
     setFormData({ ...formData, handle: formatted });
+    // Clear error when user starts typing
+    if (handleError) {
+      setHandleError(null);
+    }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -280,12 +297,22 @@ export function ProductForm({ product, collections }: ProductFormProps) {
             type="text"
             value={formData.handle}
             onChange={handleHandleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
+              handleError 
+                ? "border-red-500 dark:border-red-500" 
+                : "border-gray-300 dark:border-gray-700"
+            }`}
             placeholder="teniskazelena"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Ако не се въведе, ще се генерира автоматично от името. Само малки букви, числа и без разстояния. Пример: /teniskazelena
-          </p>
+          {handleError ? (
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+              {handleError}
+            </p>
+          ) : (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Ако не се въведе, ще се генерира автоматично от името. Само малки букви, числа и без разстояния. Пример: /teniskazelena
+            </p>
+          )}
         </div>
 
         <div>

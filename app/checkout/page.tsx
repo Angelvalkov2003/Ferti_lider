@@ -19,6 +19,7 @@ export default function CheckoutPage() {
     customer_address: "",
     payment_method: "cash_on_delivery" as "cash_on_delivery" | "card",
     comment: "",
+    privacy_policy_accepted: false,
   });
 
   if (!cart || cart.items.length === 0) {
@@ -269,9 +270,38 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
+                <div className="pt-4">
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={formData.privacy_policy_accepted}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          privacy_policy_accepted: e.target.checked,
+                        })
+                      }
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
+                      Съгласен съм с{" "}
+                      <a
+                        href="/privacy-policy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                      >
+                        Политиката за поверителност
+                      </a>{" "}
+                      и се съгласявам обработката на моите лични данни за целите на поръчката. *
+                    </span>
+                  </label>
+                </div>
+
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !formData.privacy_policy_accepted}
                   className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {isSubmitting ? (

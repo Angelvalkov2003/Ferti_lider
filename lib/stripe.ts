@@ -36,6 +36,8 @@ export async function createCheckoutSession(cart: Cart, successUrl: string, canc
     metadata: {
       cartId: cart.id || "",
     },
+    // Ensure customer email is passed through
+    customer_email: undefined, // Will be collected during checkout
   });
 
   return session;

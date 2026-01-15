@@ -69,14 +69,54 @@ export async function getCollectionByIdForAdmin(collectionId: string) {
 }
 
 /**
+ * Check if handle already exists for collections
+ */
+async function checkCollectionHandleExists(handle: string, excludeId?: string): Promise<boolean> {
+  try {
+    const supabase = await createServerClient();
+    const trimmedHandle = handle.trim();
+    
+    let query = supabase
+      .from("collections")
+      .select("id")
+      .eq("handle", trimmedHandle)
+      .limit(1);
+
+    if (excludeId) {
+      query = query.neq("id", excludeId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error checking handle:", error);
+      return false;
+    }
+
+    return (data && data.length > 0) || false;
+  } catch (error) {
+    console.error("Error in checkCollectionHandleExists:", error);
+    return false;
+  }
+}
+
+/**
  * Create a new collection
  */
 export async function createCollection(data: CreateCollectionData) {
   try {
     const supabase = await createServerClient();
     
+    const trimmedHandle = data.handle.trim();
+    
+    // Check if handle already exists
+    const handleExists = await checkCollectionHandleExists(trimmedHandle);
+    if (handleExists) {
+      throw new Error(`Slug "${trimmedHandle}" вече е зает. Моля, изберете друг slug.`);
+    }
+    
     const collectionData = {
-      handle: data.handle,
+      handle: trimmedHandle,
       title: data.title,
       position: data.position ?? 0,
       updated_at: new Date().toISOString(),
@@ -89,6 +129,10 @@ export async function createCollection(data: CreateCollectionData) {
       .single();
 
     if (error) {
+      // Check for unique constraint violation
+      if (error.code === "23505" || error.message?.includes("duplicate") || error.message?.includes("unique")) {
+        throw new Error(`Slug "${trimmedHandle}" вече е зает. Моля, изберете друг slug.`);
+      }
       console.error("Error creating collection:", error);
       throw new Error("Failed to create collection");
     }
@@ -111,7 +155,17 @@ export async function updateCollection(data: UpdateCollectionData) {
       updated_at: new Date().toISOString(),
     };
 
-    if (data.handle !== undefined) updateData.handle = data.handle;
+    if (data.handle !== undefined) {
+      const trimmedHandle = data.handle.trim();
+      
+      // Check if handle already exists for another collection
+      const handleExists = await checkCollectionHandleExists(trimmedHandle, data.id);
+      if (handleExists) {
+        throw new Error(`Slug "${trimmedHandle}" вече е зает. Моля, изберете друг slug.`);
+      }
+      
+      updateData.handle = trimmedHandle;
+    }
     if (data.title !== undefined) updateData.title = data.title;
     if (data.position !== undefined) updateData.position = data.position;
 
@@ -123,6 +177,10 @@ export async function updateCollection(data: UpdateCollectionData) {
       .single();
 
     if (error) {
+      // Check for unique constraint violation
+      if (error.code === "23505" || error.message?.includes("duplicate") || error.message?.includes("unique")) {
+        throw new Error(`Slug "${updateData.handle || data.handle}" вече е зает. Моля, изберете друг slug.`);
+      }
       console.error("Error updating collection:", error);
       throw new Error("Failed to update collection");
     }

@@ -19,6 +19,7 @@ type CartContextType = {
   cart: Cart | null;
   updateCartItem: (itemId: string, updateType: UpdateType) => void;
   addCartItem: (variant: ProductVariant, product: Product) => void;
+  clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -265,8 +266,16 @@ export function CartProvider({
     });
   };
 
+  const clearCart = () => {
+    setCart(null);
+    // Also clear from localStorage
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(CART_STORAGE_KEY);
+    }
+  };
+
   return (
-    <CartContext.Provider value={{ cart, updateCartItem, addCartItem }}>
+    <CartContext.Provider value={{ cart, updateCartItem, addCartItem, clearCart }}>
       {children}
     </CartContext.Provider>
   );

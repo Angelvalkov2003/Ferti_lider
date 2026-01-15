@@ -3,6 +3,10 @@ import { CollectionForm } from "components/admin/collection-form";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
+// Disable static generation for this page - always fetch fresh data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function EditCollectionPage({
   params,
 }: {
@@ -11,15 +15,24 @@ export default async function EditCollectionPage({
   const resolvedParams = await params;
   const id = resolvedParams.id;
   
+  if (!id) {
+    notFound();
+  }
+  
   let collection;
   try {
     collection = await getCollectionByIdForAdmin(id);
-  } catch (error) {
+    
+    if (!collection) {
+      notFound();
+    }
+  } catch (error: any) {
     console.error("Error fetching collection:", error);
-    notFound();
-  }
-
-  if (!collection) {
+    // If it's a not found error, show 404
+    if (error?.code === "PGRST116" || error?.message?.includes("not found")) {
+      notFound();
+    }
+    // For other errors, also show 404 but log the error
     notFound();
   }
 

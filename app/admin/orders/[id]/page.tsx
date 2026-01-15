@@ -5,16 +5,36 @@ import Link from "next/link";
 import { OrderEditForm } from "components/admin/order-edit-form";
 import Image from "next/image";
 
+// Disable static generation for this page - always fetch fresh data
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function OrderDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = await params;
+  const id = resolvedParams.id;
+  
+  if (!id) {
+    notFound();
+  }
+  
   let order;
   try {
-    order = await getOrderById(resolvedParams.id);
-  } catch (error) {
+    order = await getOrderById(id);
+    
+    if (!order) {
+      notFound();
+    }
+  } catch (error: any) {
+    console.error("Error fetching order:", error);
+    // If it's a not found error, show 404
+    if (error?.code === "PGRST116" || error?.message?.includes("not found")) {
+      notFound();
+    }
+    // For other errors, also show 404 but log the error
     notFound();
   }
 
