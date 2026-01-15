@@ -76,7 +76,7 @@ export async function createProduct(data: CreateProductData) {
     const supabase = await createServerClient();
     
     const productData = {
-      handle: data.handle,
+      handle: data.handle.trim(), // Trim handle to remove any spaces
       title: data.title,
       description: data.description || null,
       price: data.price,
@@ -118,7 +118,7 @@ export async function updateProduct(data: UpdateProductData) {
       updated_at: new Date().toISOString(),
     };
 
-    if (data.handle !== undefined) updateData.handle = data.handle;
+    if (data.handle !== undefined) updateData.handle = data.handle.trim(); // Trim handle to remove any spaces
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description || null;
     if (data.price !== undefined) updateData.price = data.price;

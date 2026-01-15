@@ -61,8 +61,8 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         altText: formData.title,
       }));
 
-      // Generate handle from title if not provided
-      const finalHandle = formData.handle.trim() || generateHandleFromTitle(formData.title);
+      // Generate handle from title if not provided, and trim to remove any spaces
+      const finalHandle = (formData.handle.trim() || generateHandleFromTitle(formData.title)).trim();
 
       const productData = {
         handle: finalHandle,

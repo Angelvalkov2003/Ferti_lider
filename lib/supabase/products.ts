@@ -55,18 +55,26 @@ export async function getProduct(handle: string): Promise<Product | null> {
   try {
     const supabase = await createServerClient();
     
+    // Trim the handle to match database (in case there are trailing spaces)
+    const trimmedHandle = handle.trim();
+    
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("handle", handle)
-      .eq("available", true)
-      .single();
+      .eq("available", true);
 
-    if (error || !data) {
+    if (error) {
       return null;
     }
 
-    return transformProduct(data);
+    // Find product by handle (trim both for comparison)
+    const product = data?.find((p: any) => p.handle?.trim() === trimmedHandle);
+
+    if (!product) {
+      return null;
+    }
+
+    return transformProduct(product);
   } catch (error) {
     console.error("Error in getProduct:", error);
     return null;

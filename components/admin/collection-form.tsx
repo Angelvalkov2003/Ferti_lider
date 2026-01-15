@@ -64,8 +64,8 @@ export function CollectionForm({ collection }: CollectionFormProps) {
     setLoading(true);
 
     try {
-      // Generate handle from title if not provided
-      const finalHandle = formData.handle.trim() || generateHandleFromTitle(formData.title);
+      // Generate handle from title if not provided, and trim to remove any spaces
+      const finalHandle = (formData.handle.trim() || generateHandleFromTitle(formData.title)).trim();
 
       const collectionData = {
         handle: finalHandle,
