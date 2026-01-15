@@ -49,8 +49,16 @@ export async function getCollectionByIdForAdmin(collectionId: string) {
       .single();
 
     if (error) {
+      // PGRST116 means no rows returned (not found)
+      if (error.code === "PGRST116" || error.message?.includes("No rows")) {
+        return null;
+      }
       console.error("Error fetching collection:", error);
       throw new Error("Failed to fetch collection");
+    }
+
+    if (!data) {
+      return null;
     }
 
     return data;

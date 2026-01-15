@@ -1,14 +1,23 @@
 import { getCollectionByIdForAdmin } from "lib/supabase/admin-collections";
 import { CollectionForm } from "components/admin/collection-form";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export default async function EditCollectionPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const collection = await getCollectionByIdForAdmin(id).catch(() => null);
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
+  
+  let collection;
+  try {
+    collection = await getCollectionByIdForAdmin(id);
+  } catch (error) {
+    console.error("Error fetching collection:", error);
+    notFound();
+  }
 
   if (!collection) {
     notFound();
@@ -16,6 +25,15 @@ export default async function EditCollectionPage({
 
   return (
     <div className="max-w-4xl mx-auto">
+      <div className="mb-6">
+        <Link
+          href="/admin/collections"
+          className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium"
+        >
+          ← Назад към колекциите
+        </Link>
+      </div>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Редактирай Колекция
