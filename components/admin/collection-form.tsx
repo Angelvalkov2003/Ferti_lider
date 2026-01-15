@@ -24,13 +24,51 @@ export function CollectionForm({ collection }: CollectionFormProps) {
     position: collection?.position?.toString() || "0",
   });
 
+  // Format handle/slug: lowercase, remove spaces, only allow letters, numbers, and hyphens
+  const formatHandle = (value: string): string => {
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "") // Remove all spaces
+      .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric characters except hyphens
+      .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+  };
+
+  // Generate handle from title
+  const generateHandleFromTitle = (title: string): string => {
+    return formatHandle(title);
+  };
+
+  const handleHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatHandle(e.target.value);
+    setFormData({ ...formData, handle: formatted });
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    // Auto-generate handle from title if handle is empty
+    if (!formData.handle || formData.handle === formatHandle(collection?.title || "")) {
+      setFormData({ 
+        ...formData, 
+        title: newTitle,
+        handle: generateHandleFromTitle(newTitle)
+      });
+    } else {
+      setFormData({ ...formData, title: newTitle });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Generate handle from title if not provided
+      const finalHandle = formData.handle.trim() || generateHandleFromTitle(formData.title);
+
       const collectionData = {
-        handle: formData.handle,
+        handle: finalHandle,
         title: formData.title,
         position: parseInt(formData.position) || 0,
       };
@@ -62,16 +100,18 @@ export function CollectionForm({ collection }: CollectionFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Handle (URL slug) *
+            Handle (URL slug)
           </label>
           <input
             type="text"
-            required
             value={formData.handle}
-            onChange={(e) => setFormData({ ...formData, handle: e.target.value })}
+            onChange={handleHandleChange}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-            placeholder="collection-handle"
+            placeholder="teniskazelena"
           />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Ако не се въведе, ще се генерира автоматично от името. Само малки букви, числа и без разстояния. Пример: /teniskazelena
+          </p>
         </div>
 
         <div>
@@ -82,7 +122,7 @@ export function CollectionForm({ collection }: CollectionFormProps) {
             type="text"
             required
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onChange={handleTitleChange}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
         </div>
