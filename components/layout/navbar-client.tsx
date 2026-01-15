@@ -21,7 +21,7 @@ export function NavbarClient() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLLIElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/collections")
@@ -76,41 +76,43 @@ export function NavbarClient() {
           </Link>
           <ul className="hidden gap-6 text-sm md:flex md:items-center">
             {/* Products Dropdown */}
-            <li className="relative" ref={dropdownRef}>
-              <button
-                onClick={() => setProductsDropdownOpen(!productsDropdownOpen)}
-                className="flex items-center gap-1 text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
-              >
-                Продукти
-                <ChevronDownIcon className={`h-4 w-4 transition-transform ${productsDropdownOpen ? "rotate-180" : ""}`} />
-              </button>
-              {productsDropdownOpen && (
-                <div className="absolute left-0 top-full mt-2 w-48 rounded-lg bg-white shadow-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700 z-50">
-                  <ul className="py-2">
-                    <li>
-                      <Link
-                        href="/products"
-                        onClick={() => setProductsDropdownOpen(false)}
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        Всички
-                      </Link>
-                    </li>
-                    {!loading &&
-                      collections.map((collection) => (
-                        <li key={collection.id}>
-                          <Link
-                            href={`/products?collection=${collection.handle}`}
-                            onClick={() => setProductsDropdownOpen(false)}
-                            className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            {collection.title}
-                          </Link>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
+            <li className="relative">
+              <div ref={dropdownRef}>
+                <button
+                  onClick={() => setProductsDropdownOpen(!productsDropdownOpen)}
+                  className="flex items-center gap-1 text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+                >
+                  Продукти
+                  <ChevronDownIcon className={`h-4 w-4 transition-transform ${productsDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+                {productsDropdownOpen && (
+                  <div className="absolute left-0 top-full mt-2 w-48 rounded-lg bg-white shadow-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700 z-50">
+                    <ul className="py-2">
+                      <li>
+                        <Link
+                          href="/products"
+                          onClick={() => setProductsDropdownOpen(false)}
+                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          Всички
+                        </Link>
+                      </li>
+                      {!loading &&
+                        collections.map((collection) => (
+                          <li key={collection.id}>
+                            <Link
+                              href={`/products?collection=${collection.handle}`}
+                              onClick={() => setProductsDropdownOpen(false)}
+                              className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            >
+                              {collection.title}
+                            </Link>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
             </li>
 
             {/* Contact Link */}
