@@ -3,6 +3,7 @@ import { createServerClient } from "./server";
 export interface CreateCollectionData {
   handle: string;
   title: string;
+  position?: number;
 }
 
 export interface UpdateCollectionData extends Partial<CreateCollectionData> {
@@ -19,7 +20,8 @@ export async function getAllCollectionsForAdmin() {
     const { data, error } = await supabase
       .from("collections")
       .select("*")
-      .order("title");
+      .order("position", { ascending: true })
+      .order("title", { ascending: true });
 
     if (error) {
       console.error("Error fetching collections:", error);
@@ -68,6 +70,7 @@ export async function createCollection(data: CreateCollectionData) {
     const collectionData = {
       handle: data.handle,
       title: data.title,
+      position: data.position ?? 0,
       updated_at: new Date().toISOString(),
     };
 
@@ -102,6 +105,7 @@ export async function updateCollection(data: UpdateCollectionData) {
 
     if (data.handle !== undefined) updateData.handle = data.handle;
     if (data.title !== undefined) updateData.title = data.title;
+    if (data.position !== undefined) updateData.position = data.position;
 
     const { data: collection, error } = await supabase
       .from("collections")

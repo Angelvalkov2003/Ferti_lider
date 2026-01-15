@@ -10,9 +10,6 @@ DROP TABLE IF EXISTS orders CASCADE;
 DROP TABLE IF EXISTS product_images CASCADE;
 DROP TABLE IF EXISTS products CASCADE;
 DROP TABLE IF EXISTS collections CASCADE;
-DROP TABLE IF EXISTS categories CASCADE;
-DROP TABLE IF EXISTS carts CASCADE;
-DROP TABLE IF EXISTS cart_items CASCADE;
 
 -- Drop functions if they exist
 DROP FUNCTION IF EXISTS validate_products_json(JSONB) CASCADE;
@@ -26,6 +23,7 @@ CREATE TABLE collections (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     handle TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
+    position INTEGER NOT NULL DEFAULT 0,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -41,6 +39,7 @@ CREATE TABLE products (
     images JSONB[] DEFAULT '{}',
     category TEXT, -- This references collections by handle or can be collection title
     available BOOLEAN DEFAULT true,
+    position INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -69,18 +68,22 @@ CREATE TABLE orders (
     payment_method VARCHAR(20) NOT NULL DEFAULT 'cash_on_delivery' CHECK (payment_method IN ('cash_on_delivery', 'card')),
     status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'confirmed', 'shipped', 'paid', 'completed', 'canceled')),
     comment TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better query performance
 CREATE INDEX idx_products_handle ON products(handle);
 CREATE INDEX idx_products_category ON products(category);
 CREATE INDEX idx_products_available ON products(available);
+CREATE INDEX idx_products_position ON products(position);
 CREATE INDEX idx_collections_handle ON collections(handle);
+CREATE INDEX idx_collections_position ON collections(position);
 CREATE INDEX idx_product_images_product_id ON product_images(product_id);
 CREATE INDEX idx_product_images_sort_order ON product_images(product_id, sort_order);
 CREATE INDEX idx_orders_status ON orders(status);
 CREATE INDEX idx_orders_created_at ON orders(created_at DESC);
+CREATE INDEX idx_orders_updated_at ON orders(updated_at DESC);
 CREATE INDEX idx_orders_customer_email ON orders(customer_email);
 
 -- Function to validate products JSON structure in orders

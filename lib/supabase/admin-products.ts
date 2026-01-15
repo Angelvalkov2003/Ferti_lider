@@ -11,6 +11,7 @@ export interface CreateProductData {
   images?: Image[];
   category?: string;
   available?: boolean;
+  position?: number;
 }
 
 export interface UpdateProductData extends Partial<CreateProductData> {
@@ -27,6 +28,7 @@ export async function getAllProductsForAdmin() {
     const { data, error } = await supabase
       .from("products")
       .select("*")
+      .order("position", { ascending: true })
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -83,6 +85,7 @@ export async function createProduct(data: CreateProductData) {
       images: data.images || [],
       category: data.category || null,
       available: data.available !== false,
+      position: data.position ?? 0,
       updated_at: new Date().toISOString(),
     };
 
@@ -124,6 +127,7 @@ export async function updateProduct(data: UpdateProductData) {
     if (data.images !== undefined) updateData.images = data.images || [];
     if (data.category !== undefined) updateData.category = data.category || null;
     if (data.available !== undefined) updateData.available = data.available;
+    if (data.position !== undefined) updateData.position = data.position;
 
     const { data: product, error } = await supabase
       .from("products")

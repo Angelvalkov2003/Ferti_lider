@@ -31,7 +31,9 @@ export async function getProducts(params?: {
       query = query.range(params.offset, params.offset + (params.limit || 10) - 1);
     }
 
-    const { data, error } = await query.order("created_at", { ascending: false });
+    const { data, error } = await query
+      .order("position", { ascending: true })
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Error fetching products:", error.message || error);
@@ -78,7 +80,8 @@ export async function getCollections(): Promise<Collection[]> {
     const { data, error } = await supabase
       .from("collections")
       .select("*")
-      .order("title");
+      .order("position", { ascending: true })
+      .order("title", { ascending: true });
 
     if (error) {
       // If table doesn't exist or other error, return empty array

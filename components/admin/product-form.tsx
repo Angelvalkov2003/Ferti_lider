@@ -16,6 +16,7 @@ interface ProductFormData {
   featured_image_url: string;
   category: string;
   available: boolean;
+  position: string;
   images: Image[];
 }
 
@@ -37,6 +38,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
     featured_image_url: product?.featured_image?.url || "",
     category: product?.category || "",
     available: product?.available !== false,
+    position: product?.position?.toString() || "0",
     images: product?.images || [],
   });
 
@@ -69,6 +71,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         images: imagesWithAltText,
         category: formData.category || undefined,
         available: formData.available,
+        position: parseInt(formData.position) || 0,
       };
 
       let result;
@@ -316,6 +319,23 @@ export function ProductForm({ product, collections }: ProductFormProps) {
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Позиция
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={formData.position}
+            onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="0 = първа позиция"
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            0 = първа позиция, по-големи числа = по-назад
+          </p>
         </div>
       </div>
 

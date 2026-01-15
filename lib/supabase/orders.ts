@@ -103,7 +103,10 @@ export async function updateOrderStatus(
 
   const { data, error } = await supabase
     .from("orders")
-    .update({ status })
+    .update({ 
+      status,
+      updated_at: new Date().toISOString(),
+    })
     .eq("id", orderId)
     .select()
     .single();
@@ -127,6 +130,7 @@ export interface UpdateOrderData {
   payment_method?: "cash_on_delivery" | "card";
   status?: "new" | "confirmed" | "shipped" | "paid" | "completed" | "canceled";
   comment?: string;
+  created_at?: string;
 }
 
 export async function updateOrder(
@@ -135,9 +139,15 @@ export async function updateOrder(
 ) {
   const supabase = await createServerClient();
 
+  // Always update updated_at when order is modified
+  const updateData = {
+    ...data,
+    updated_at: new Date().toISOString(),
+  };
+
   const { data: order, error } = await supabase
     .from("orders")
-    .update(data)
+    .update(updateData)
     .eq("id", orderId)
     .select()
     .single();

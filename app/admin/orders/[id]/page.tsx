@@ -35,16 +35,30 @@ export default async function OrderDetailPage({
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
           Поръчка #{order.id.substring(0, 8)}
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
-          Създадена на{" "}
-          {new Date(order.created_at).toLocaleDateString("bg-BG", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </p>
+        <div className="mt-2 space-y-1">
+          <p className="text-gray-600 dark:text-gray-400">
+            <span className="font-medium">Направена на:</span>{" "}
+            {new Date(order.created_at).toLocaleDateString("bg-BG", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </p>
+          {order.updated_at && order.updated_at !== order.created_at && (
+            <p className="text-gray-600 dark:text-gray-400">
+              <span className="font-medium">Промяна по поръчката от админ на:</span>{" "}
+              {new Date(order.updated_at).toLocaleDateString("bg-BG", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Edit Order Form */}

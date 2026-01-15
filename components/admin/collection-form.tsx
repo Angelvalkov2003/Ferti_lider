@@ -8,6 +8,7 @@ import { toast } from "sonner";
 interface CollectionFormData {
   handle: string;
   title: string;
+  position: string;
 }
 
 interface CollectionFormProps {
@@ -20,6 +21,7 @@ export function CollectionForm({ collection }: CollectionFormProps) {
   const [formData, setFormData] = useState<CollectionFormData>({
     handle: collection?.handle || "",
     title: collection?.title || "",
+    position: collection?.position?.toString() || "0",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,6 +32,7 @@ export function CollectionForm({ collection }: CollectionFormProps) {
       const collectionData = {
         handle: formData.handle,
         title: formData.title,
+        position: parseInt(formData.position) || 0,
       };
 
       let result;
@@ -82,6 +85,23 @@ export function CollectionForm({ collection }: CollectionFormProps) {
             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Позиция
+          </label>
+          <input
+            type="number"
+            min="0"
+            value={formData.position}
+            onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            placeholder="0 = първа позиция"
+          />
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            0 = първа позиция, по-големи числа = по-назад
+          </p>
         </div>
       </div>
 

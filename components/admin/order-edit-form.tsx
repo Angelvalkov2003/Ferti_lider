@@ -18,12 +18,24 @@ interface OrderEditFormProps {
     payment_method: "cash_on_delivery" | "card";
     status: string;
     comment?: string;
+    created_at: string;
   };
 }
 
 export function OrderEditForm({ order }: OrderEditFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const [formData, setFormData] = useState({
     customer_name: order.customer_name,
     customer_email: order.customer_email,
@@ -33,6 +45,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
     payment_method: order.payment_method,
     status: order.status as OrderStatus,
     comment: order.comment || "",
+    created_at: formatDateForInput(order.created_at),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,6 +62,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
         payment_method: formData.payment_method,
         status: formData.status,
         comment: formData.comment || undefined,
+        created_at: new Date(formData.created_at).toISOString(),
       });
       toast.success("Поръчката е обновена успешно!");
       router.refresh();
@@ -212,6 +226,26 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           <option value="completed">Финализирано</option>
           <option value="canceled">Отменена</option>
         </select>
+      </div>
+
+      <div>
+        <label
+          htmlFor="created_at"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+        >
+          Дата на поръчката *
+        </label>
+        <input
+          type="datetime-local"
+          id="created_at"
+          required
+          value={formData.created_at}
+          onChange={(e) =>
+            setFormData({ ...formData, created_at: e.target.value })
+          }
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          disabled={loading}
+        />
       </div>
 
       <div>
