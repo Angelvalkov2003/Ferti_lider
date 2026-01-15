@@ -31,9 +31,18 @@ export async function Navbar() {
               {SITE_NAME}
             </div>
           </Link>
-          {menu.length ? (
-            <ul className="hidden gap-6 text-sm md:flex md:items-center">
-              {menu.map((item) => (
+          <ul className="hidden gap-6 text-sm md:flex md:items-center">
+            <li>
+              <Link
+                href="/products"
+                prefetch={true}
+                className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+              >
+                Продукти
+              </Link>
+            </li>
+            {menu.length ? (
+              menu.map((item) => (
                 <li key={item.title}>
                   <Link
                     href={item.path}
@@ -43,9 +52,18 @@ export async function Navbar() {
                     {item.title}
                   </Link>
                 </li>
-              ))}
-            </ul>
-          ) : null}
+              ))
+            ) : null}
+            <li>
+              <Link
+                href="/contact"
+                prefetch={true}
+                className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+              >
+                Контакти
+              </Link>
+            </li>
+          </ul>
         </div>
         <div className="hidden justify-center md:flex md:w-1/3">
           <Suspense fallback={<SearchSkeleton />}>

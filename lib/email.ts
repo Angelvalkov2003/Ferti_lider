@@ -16,6 +16,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export interface ContactFormData {
   name: string;
   email: string;
+  phone?: string;
   message: string;
   subject?: string;
 }
@@ -51,6 +52,7 @@ export async function sendContactFormEmail(data: ContactFormData) {
         <h2>New Contact Form Submission</h2>
         <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
+        ${data.phone ? `<p><strong>Phone:</strong> ${escapeHtml(data.phone)}</p>` : ""}
         ${data.subject ? `<p><strong>Subject:</strong> ${escapeHtml(data.subject)}</p>` : ""}
         <p><strong>Message:</strong></p>
         <p>${escapeHtml(data.message).replace(/\n/g, "<br>")}</p>
@@ -62,6 +64,7 @@ New Contact Form Submission
 
 Name: ${data.name}
 Email: ${data.email}
+${data.phone ? `Phone: ${data.phone}\n` : ""}
 ${data.subject ? `Subject: ${data.subject}\n` : ""}
 Message:
 ${data.message}

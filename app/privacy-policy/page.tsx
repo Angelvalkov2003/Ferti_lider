@@ -1,4 +1,6 @@
 import { Metadata } from "next";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 const siteName = process.env.SITE_NAME || "My Ecommerce Store";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -12,6 +14,15 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        <div className="mb-6">
+          <Link
+            href="/checkout"
+            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+          >
+            <ArrowLeftIcon className="h-5 w-5 mr-2" />
+            Назад към потвърждаване на покупката
+          </Link>
+        </div>
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">
           Политика за поверителност и защита на личните данни
         </h1>

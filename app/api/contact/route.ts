@@ -4,12 +4,12 @@ import { sendContactFormEmail } from "lib/email";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, message, subject } = body;
+    const { name, email, phone, message, subject } = body;
 
     // Validate required fields
-    if (!name || !email || !message) {
+    if (!name || !email || !phone || !message) {
       return NextResponse.json(
-        { error: "Name, email, and message are required" },
+        { error: "Име, имейл, телефон и съобщение са задължителни" },
         { status: 400 }
       );
     }
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
-        { error: "Invalid email format" },
+        { error: "Невалиден формат на имейл" },
         { status: 400 }
       );
     }
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
     await sendContactFormEmail({
       name,
       email,
+      phone,
       message,
       subject,
     });

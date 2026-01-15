@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Fragment, Suspense, useEffect, useState } from "react";
 
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import Search, { SearchSkeleton } from "./search";
 
 type MenuItem = {
@@ -13,12 +13,35 @@ type MenuItem = {
   path: string;
 };
 
+interface Collection {
+  id: string;
+  handle: string;
+  title: string;
+}
+
 export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
+  const [productsSubmenuOpen, setProductsSubmenuOpen] = useState(false);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [loading, setLoading] = useState(true);
+  
   const openMobileMenu = () => setIsOpen(true);
   const closeMobileMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    fetch("/api/collections")
+      .then((res) => res.json())
+      .then((data) => {
+        setCollections(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching collections:", error);
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -80,24 +103,55 @@ export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
                     <Search />
                   </Suspense>
                 </div>
-                {menu.length ? (
-                  <ul className="flex w-full flex-col">
-                    {menu.map((item: MenuItem) => (
-                      <li
-                        className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white"
-                        key={item.title}
-                      >
-                        <Link
-                          href={item.path}
-                          prefetch={true}
-                          onClick={closeMobileMenu}
-                        >
-                          {item.title}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+                <ul className="flex w-full flex-col">
+                  <li>
+                    <button
+                      onClick={() => setProductsSubmenuOpen(!productsSubmenuOpen)}
+                      className="flex w-full items-center justify-between py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white"
+                    >
+                      Продукти
+                      <ChevronRightIcon
+                        className={`h-5 w-5 transition-transform ${productsSubmenuOpen ? "rotate-90" : ""}`}
+                      />
+                    </button>
+                    {productsSubmenuOpen && (
+                      <ul className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
+                        <li>
+                          <Link
+                            href="/products"
+                            prefetch={true}
+                            onClick={closeMobileMenu}
+                            className="block py-2 text-lg text-gray-700 transition-colors hover:text-black dark:text-gray-300 dark:hover:text-white"
+                          >
+                            Всички
+                          </Link>
+                        </li>
+                        {!loading &&
+                          collections.map((collection) => (
+                            <li key={collection.id}>
+                              <Link
+                                href={`/products?collection=${collection.handle}`}
+                                prefetch={true}
+                                onClick={closeMobileMenu}
+                                className="block py-2 text-lg text-gray-700 transition-colors hover:text-black dark:text-gray-300 dark:hover:text-white"
+                              >
+                                {collection.title}
+                              </Link>
+                            </li>
+                          ))}
+                      </ul>
+                    )}
+                  </li>
+                  <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
+                    <Link
+                      href="/contact"
+                      prefetch={true}
+                      onClick={closeMobileMenu}
+                    >
+                      Контакти
+                    </Link>
+                  </li>
+                </ul>
               </div>
             </Dialog.Panel>
           </Transition.Child>
