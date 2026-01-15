@@ -4,10 +4,23 @@ import Link from "next/link";
 export default async function AdminDashboard() {
   const orders = await getAllOrders();
 
+  // Get Monday of this week (start of week)
+  const now = new Date();
+  const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // If Sunday, go back 6 days, otherwise go back to Monday
+  monday.setHours(0, 0, 0, 0); // Start of Monday
+
+  // Filter orders from Monday onwards
+  const ordersThisWeek = orders.filter((order) => {
+    const orderDate = new Date(order.created_at);
+    return orderDate >= monday;
+  });
+
   const stats = {
     totalOrders: orders.length,
     newOrders: orders.filter((o) => o.status === "new").length,
-    totalRevenue: orders
+    totalRevenue: ordersThisWeek
       .filter((o) => o.status !== "canceled")
       .reduce((sum, o) => sum + Number(o.total_price), 0),
   };
@@ -43,10 +56,10 @@ export default async function AdminDashboard() {
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Общ Приход
+            Приход от Понеделник насам
           </h3>
           <p className="mt-2 text-3xl font-bold text-green-600 dark:text-green-400">
-            ${stats.totalRevenue.toFixed(2)}
+            €{stats.totalRevenue.toFixed(2)}
           </p>
         </div>
       </div>
@@ -72,6 +85,9 @@ export default async function AdminDashboard() {
                   Обща Сума
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Начин на плащане
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Статус
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -83,7 +99,7 @@ export default async function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {orders.slice(0, 10).map((order) => (
+              {ordersThisWeek.slice(0, 10).map((order) => (
                 <tr key={order.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900 dark:text-white">
                     {order.id.substring(0, 8)}...
@@ -96,7 +112,12 @@ export default async function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    ${Number(order.total_price).toFixed(2)}
+                    €{Number(order.total_price).toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {order.payment_method === "cash_on_delivery"
+                      ? "Наложен платеж"
+                      : "Плащане с карта"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

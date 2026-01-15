@@ -167,16 +167,14 @@ View order: ${siteUrl}/admin/orders/${data.orderId}
 }
 
 /**
- * Helper function to extract domain from email address
+ * Helper function to get the sending domain for Resend
+ * Resend requires verified domains. Use resend.dev for testing or your verified domain for production
  */
 function getDomainFromEmail(email: string): string {
-  const domain = email.split("@")[1];
-  if (!domain) {
-    return "resend.dev"; // fallback domain
-  }
-  // For Resend, you need to use a verified domain or resend.dev
-  // If you have a custom domain, use it here, otherwise use resend.dev
-  return domain.includes(".") ? domain : "resend.dev";
+  // Always use resend.dev as the sending domain
+  // If you have a verified custom domain in Resend, you can use it here instead
+  // For example: return "yourdomain.com" if verified
+  return "resend.dev";
 }
 
 /**

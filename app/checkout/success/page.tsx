@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getOrderById } from "lib/supabase/orders";
+import { sendNewOrderNotification } from "lib/email";
 
 export default async function CheckoutSuccessPage({
   searchParams,
@@ -13,6 +14,31 @@ export default async function CheckoutSuccessPage({
   if (orderId) {
     try {
       order = await getOrderById(orderId);
+      
+      // Send email notification when order is finalized
+      if (order) {
+        try {
+          await sendNewOrderNotification({
+            orderId: order.id,
+            customerName: order.customer_name,
+            customerEmail: order.customer_email,
+            customerPhone: order.customer_phone || undefined,
+            customerAddress: order.customer_address,
+            totalPrice: Number(order.total_price),
+            paymentMethod: order.payment_method as "cash_on_delivery" | "card",
+            products: (order.products as any[]).map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              price: Number(p.price),
+              quantity: p.quantity,
+            })),
+            comment: order.comment || undefined,
+          });
+        } catch (emailError) {
+          // Log email error but don't fail the page
+          console.error("Failed to send order notification email:", emailError);
+        }
+      }
     } catch (error) {
       console.error("Error fetching order:", error);
     }

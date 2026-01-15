@@ -1,5 +1,4 @@
 import { createServerClient } from "./server";
-import { sendNewOrderNotification } from "lib/email";
 
 export interface CreateOrderData {
   customer_name: string;
@@ -51,25 +50,6 @@ export async function createOrder(data: CreateOrderData) {
   if (error || !order) {
     console.error("Error creating order:", error);
     throw new Error("Failed to create order");
-  }
-
-  // Send email notification about new order
-  try {
-    await sendNewOrderNotification({
-      orderId: order.id,
-      customerName: data.customer_name,
-      customerEmail: data.customer_email,
-      customerPhone: data.customer_phone,
-      customerAddress: data.customer_address,
-      totalPrice: data.total_price,
-      paymentMethod: data.payment_method,
-      products: data.products,
-      comment: data.comment,
-    });
-  } catch (emailError) {
-    // Log email error but don't fail the order creation
-    console.error("Failed to send order notification email:", emailError);
-    // Order is still created successfully, just email failed
   }
 
   return order;
