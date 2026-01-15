@@ -36,6 +36,9 @@ export default async function AdminCollectionsPage() {
                   Handle
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Позиция
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Действия
                 </th>
               </tr>
@@ -43,7 +46,7 @@ export default async function AdminCollectionsPage() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {collections.length === 0 ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     Няма колекции. Създай първата колекция!
                   </td>
                 </tr>
@@ -58,6 +61,11 @@ export default async function AdminCollectionsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
                         {collection.handle}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900 dark:text-white font-medium">
+                        {collection.position ?? 0}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
