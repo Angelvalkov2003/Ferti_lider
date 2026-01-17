@@ -11,6 +11,11 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentColor);
   }
+  
+  /* Optimize font loading with display swap */
+  @font-face {
+    font-display: swap;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
