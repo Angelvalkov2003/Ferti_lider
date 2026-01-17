@@ -59,7 +59,7 @@ export function CookieConsent() {
     }
 
     // Check if already initialized
-    if (window.dataLayer && window.gtag) {
+    if (window.dataLayer && typeof window.gtag === "function") {
       return;
     }
 
