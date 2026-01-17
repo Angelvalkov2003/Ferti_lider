@@ -14,6 +14,7 @@ export const GridTileImage = memo(function GridTileImage({
   label?: {
     title: string;
     amount: string;
+    compareAtAmount?: string;
     currencyCode: string;
     position?: "bottom" | "center";
   };
@@ -21,10 +22,10 @@ export const GridTileImage = memo(function GridTileImage({
   return (
     <div
       className={clsx(
-        "group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-blue-600 dark:bg-black",
+        "group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-stone-400 dark:bg-black dark:hover:border-stone-600",
         {
           relative: label,
-          "border-2 border-blue-600": active,
+          "border-2 border-stone-400 dark:border-stone-600": active,
           "border-neutral-200 dark:border-neutral-800": !active,
         },
       )}
@@ -42,6 +43,7 @@ export const GridTileImage = memo(function GridTileImage({
         <Label
           title={label.title}
           amount={label.amount}
+          compareAtAmount={label.compareAtAmount}
           currencyCode={label.currencyCode}
           position={label.position}
         />

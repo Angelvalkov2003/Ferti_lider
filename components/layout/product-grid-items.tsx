@@ -22,6 +22,7 @@ export default function ProductGridItems({
               label={{
                 title: product.title,
                 amount: product.price.toString(),
+                compareAtAmount: product.compareAtPrice?.toString(),
                 currencyCode: "EUR",
               }}
               src={product.featuredImage?.url}

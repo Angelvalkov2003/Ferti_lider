@@ -4,14 +4,18 @@ import Price from "./price";
 const Label = ({
   title,
   amount,
+  compareAtAmount,
   currencyCode,
   position = "bottom",
 }: {
   title: string;
   amount: string;
+  compareAtAmount?: string;
   currencyCode: string;
   position?: "bottom" | "center";
 }) => {
+  const hasComparePrice = compareAtAmount && parseFloat(compareAtAmount) > parseFloat(amount);
+  
   return (
     <div
       className={clsx(
@@ -25,12 +29,33 @@ const Label = ({
         <h3 className="mr-4 line-clamp-2 grow pl-2 leading-none tracking-tight">
           {title}
         </h3>
-        <Price
-          className="flex-none rounded-full bg-blue-600 p-2 text-white"
-          amount={amount}
-          currencyCode={currencyCode}
-          currencyCodeClassName="hidden @[275px]/label:inline"
-        />
+        <div className="flex-none rounded-full bg-stone-200 dark:bg-stone-700 p-2 text-stone-900 dark:text-stone-100">
+          {hasComparePrice ? (
+            <div className="flex items-center gap-1.5">
+              <span className="text-red-600 dark:text-red-400 line-through text-[10px]">
+                <Price
+                  amount={compareAtAmount}
+                  currencyCode={currencyCode}
+                  currencyCodeClassName="hidden"
+                  showBgn={false}
+                />
+              </span>
+              <Price
+                amount={amount}
+                currencyCode={currencyCode}
+                currencyCodeClassName="hidden @[275px]/label:inline"
+                showBgn={false}
+              />
+            </div>
+          ) : (
+            <Price
+              amount={amount}
+              currencyCode={currencyCode}
+              currencyCodeClassName="hidden @[275px]/label:inline"
+              showBgn={false}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

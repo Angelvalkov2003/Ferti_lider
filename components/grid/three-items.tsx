@@ -39,6 +39,7 @@ function ThreeItemGridItem({
             position: size === "full" ? "center" : "bottom",
             title: item.title,
             amount: item.price.toString(),
+            compareAtAmount: item.compareAtPrice?.toString(),
             currencyCode: "EUR",
           }}
         />
