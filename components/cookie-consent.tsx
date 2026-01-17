@@ -53,9 +53,9 @@ export function CookieConsent() {
     if (!enabled || typeof window === "undefined") return;
 
     const gaId = process.env.NEXT_PUBLIC_GA_ID;
-    if (!gaId) {
-      console.warn("Google Analytics ID not configured. Set NEXT_PUBLIC_GA_ID in .env.local");
-      return;
+    // Don't initialize if no ID or if explicitly set to "none"
+    if (!gaId || gaId.trim() === "" || gaId.toLowerCase() === "none") {
+      return; // Silently skip if not configured
     }
 
     // Check if already initialized
