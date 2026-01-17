@@ -22,4 +22,4 @@ export function ProductDescription({ product }: { product: Product }) {
       <AddToCart product={product} />
     </>
   );
-});
+}

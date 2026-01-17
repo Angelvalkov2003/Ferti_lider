@@ -2,6 +2,16 @@ import type { Product, Collection } from "lib/types";
 import { cache } from "react";
 import { createServerClient } from "./server";
 
+// Helper to check if error is React.postpone()
+function isReactPostpone(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "$$typeof" in error &&
+    error.$$typeof === Symbol.for("react.postpone")
+  );
+}
+
 export async function getProducts(params?: {
   query?: string;
   collection?: string;
@@ -53,6 +63,10 @@ export async function getProducts(params?: {
 
     return data.map(transformProduct);
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getProducts:", error);
     return [];
   }
@@ -80,6 +94,10 @@ export const getProduct = cache(async (handle: string): Promise<Product | null> 
 
     return transformProduct(data);
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getProduct:", error);
     return null;
   }
@@ -136,6 +154,10 @@ export async function getCollectionProducts(handle: string): Promise<Product[]> 
     // Use handle (which is stored in products.category) to filter products
     return getProducts({ collection: handle });
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getCollectionProducts:", error);
     return [];
   }

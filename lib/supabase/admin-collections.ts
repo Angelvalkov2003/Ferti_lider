@@ -1,5 +1,15 @@
 import { createServerClient } from "./server";
 
+// Helper to check if error is React.postpone()
+function isReactPostpone(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "$$typeof" in error &&
+    error.$$typeof === Symbol.for("react.postpone")
+  );
+}
+
 export interface CreateCollectionData {
   handle: string;
   title: string;
@@ -30,6 +40,10 @@ export async function getAllCollectionsForAdmin() {
 
     return data || [];
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getAllCollectionsForAdmin:", error);
     throw error;
   }

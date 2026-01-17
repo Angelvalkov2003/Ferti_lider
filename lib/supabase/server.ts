@@ -28,13 +28,23 @@ try {
   );
 }
 
+// Helper to check if error is React.postpone()
+function isReactPostpone(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "$$typeof" in error &&
+    error.$$typeof === Symbol.for("react.postpone")
+  );
+}
+
 export async function getSupabaseServerClient() {
+  // TypeScript guard: ensure variables are defined
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error("Missing Supabase environment variables");
+  }
+  
   try {
-    // TypeScript guard: ensure variables are defined
-    if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error("Missing Supabase environment variables");
-    }
-    
     const cookieStore = await cookies();
     
     return createSupabaseServerClient(supabaseUrl, supabaseAnonKey, {
@@ -46,6 +56,10 @@ export async function getSupabaseServerClient() {
           try {
             cookieStore.set(name, value, options);
           } catch (error) {
+            // Don't catch React.postpone() - let it propagate
+            if (isReactPostpone(error)) {
+              throw error;
+            }
             // The `set` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -55,6 +69,10 @@ export async function getSupabaseServerClient() {
           try {
             cookieStore.set(name, "", { ...options, maxAge: 0 });
           } catch (error) {
+            // Don't catch React.postpone() - let it propagate
+            if (isReactPostpone(error)) {
+              throw error;
+            }
             // The `delete` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
             // user sessions.
@@ -63,6 +81,10 @@ export async function getSupabaseServerClient() {
       },
     });
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error creating Supabase server client:", error);
     throw error;
   }
