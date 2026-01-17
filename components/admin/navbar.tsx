@@ -4,7 +4,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useState } from "react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, HomeIcon } from "@heroicons/react/24/outline";
 
 export function AdminNavbar() {
   const router = useRouter();
@@ -82,6 +82,16 @@ export function AdminNavbar() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              title="Отвори уебсайта"
+            >
+              <HomeIcon className="h-5 w-5" />
+              <span>Уебсайт</span>
+            </Link>
             <button
               onClick={handleLogout}
               className="hidden sm:block text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
@@ -136,6 +146,16 @@ export function AdminNavbar() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Колекции
+            </Link>
+            <Link
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-2 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <HomeIcon className="h-5 w-5" />
+              <span>Уебсайт</span>
             </Link>
             <button
               onClick={() => {
