@@ -105,11 +105,6 @@ export async function sendNewOrderNotification(data: OrderNotificationData) {
       )
       .join("");
 
-    console.log(`Sending order notification email to ${contactEmail} for order ${data.orderId}`);
-    console.log(`Using Resend API key: ${process.env.RESEND_API_KEY ? "Set" : "NOT SET"}`);
-    console.log(`Using contact email: ${contactEmail}`);
-    console.log(`Using domain: ${getDomainFromEmail(contactEmail)}`);
-    
     const { data: emailData, error } = await resend.emails.send({
       from: `New Order <noreply@${getDomainFromEmail(contactEmail)}>`,
       to: [contactEmail],
@@ -181,10 +176,8 @@ View order: ${siteUrl}/admin/orders/${data.orderId}
       throw enhancedError;
     }
 
-    if (emailData) {
-      console.log(`Order notification email sent successfully. Email ID: ${emailData.id}`);
-    } else {
-      console.warn("Email sent but no data returned from Resend");
+    if (!emailData) {
+      // Email sent but no data returned from Resend
     }
 
     return { success: true };

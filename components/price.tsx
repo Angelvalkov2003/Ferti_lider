@@ -31,7 +31,7 @@ const Price = ({
   }).format(bgnAmount);
 
   return (
-    <p suppressHydrationWarning={true} className={className}>
+    <p suppressHydrationWarning={true} className={clsx("whitespace-nowrap", className)}>
       <span>
         {formattedEur}
         <span className={clsx("ml-1 inline", currencyCodeClassName)}>
@@ -39,7 +39,7 @@ const Price = ({
         </span>
       </span>
       {showBgn && (
-        <span className="ml-2 text-[0.7em] opacity-70">
+        <span className="ml-1.5 text-[0.65em] opacity-70">
           ({formattedBgn})
         </span>
       )}

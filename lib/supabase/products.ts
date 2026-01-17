@@ -18,6 +18,11 @@ export async function getProducts(params?: {
   limit?: number;
   offset?: number;
   excludeId?: string;
+  sort?: "price-asc" | "price-desc" | "discount-desc" | "name-asc" | "newest";
+  minPrice?: number;
+  maxPrice?: number;
+  categories?: string[];
+  onSaleOnly?: boolean;
 }): Promise<Product[]> {
   try {
     const supabase = await createServerClient();
@@ -35,6 +40,23 @@ export async function getProducts(params?: {
       query = query.eq("category", params.collection);
     }
 
+    // Filter by multiple categories
+    if (params?.categories && params.categories.length > 0) {
+      query = query.in("category", params.categories);
+    }
+
+    // Filter by price range
+    if (params?.minPrice !== undefined) {
+      query = query.gte("price", params.minPrice);
+    }
+    if (params?.maxPrice !== undefined) {
+      query = query.lte("price", params.maxPrice);
+    }
+
+    // Filter only products on sale (have compareAtPrice > price)
+    // Note: This needs to be done client-side as Supabase doesn't support
+    // comparing two columns directly in a query
+
     // Exclude specific product ID if provided
     if (params?.excludeId) {
       query = query.neq("id", params.excludeId);
@@ -48,9 +70,23 @@ export async function getProducts(params?: {
       query = query.range(params.offset, params.offset + (params.limit || 10) - 1);
     }
 
-    const { data, error } = await query
-      .order("position", { ascending: true })
-      .order("created_at", { ascending: false });
+    // Apply sorting
+    const sort = params?.sort || "newest";
+    if (sort === "price-asc") {
+      query = query.order("price", { ascending: true });
+    } else if (sort === "price-desc") {
+      query = query.order("price", { ascending: false });
+    } else if (sort === "name-asc") {
+      query = query.order("title", { ascending: true });
+    } else if (sort === "newest") {
+      query = query.order("created_at", { ascending: false });
+    } else {
+      // Default: position
+      query = query.order("position", { ascending: true });
+      query = query.order("created_at", { ascending: false });
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error("Error fetching products:", error.message || error);
@@ -61,7 +97,29 @@ export async function getProducts(params?: {
       return [];
     }
 
-    return data.map(transformProduct);
+    let products = data.map(transformProduct);
+
+    // Filter only products on sale (have compareAtPrice > price)
+    if (params?.onSaleOnly) {
+      products = products.filter(
+        (p) => p.compareAtPrice && p.compareAtPrice > p.price
+      );
+    }
+
+    // Sort by discount percentage if needed (client-side as it requires calculation)
+    if (sort === "discount-desc") {
+      products = products.sort((a, b) => {
+        const discountA = a.compareAtPrice && a.compareAtPrice > a.price
+          ? ((a.compareAtPrice - a.price) / a.compareAtPrice) * 100
+          : 0;
+        const discountB = b.compareAtPrice && b.compareAtPrice > b.price
+          ? ((b.compareAtPrice - b.price) / b.compareAtPrice) * 100
+          : 0;
+        return discountB - discountA;
+      });
+    }
+
+    return products;
   } catch (error) {
     // Don't catch React.postpone() - let it propagate for PPR
     if (isReactPostpone(error)) {

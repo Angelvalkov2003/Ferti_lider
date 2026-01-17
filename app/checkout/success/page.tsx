@@ -22,7 +22,6 @@ export default async function CheckoutSuccessPage({
       // Only send if order exists and hasn't been sent before (check if order was just created)
       if (order) {
         try {
-          console.log(`Attempting to send order notification email for order ${order.id}`);
           const emailResult = await sendNewOrderNotification({
             orderId: order.id,
             customerName: order.customer_name,
@@ -60,8 +59,6 @@ export default async function CheckoutSuccessPage({
     } catch (error) {
       console.error("Error fetching order:", error);
     }
-  } else {
-    console.warn("No orderId provided in success page URL");
   }
 
   return (
