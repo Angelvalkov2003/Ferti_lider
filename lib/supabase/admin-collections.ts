@@ -77,6 +77,10 @@ export async function getCollectionByIdForAdmin(collectionId: string) {
 
     return data;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getCollectionByIdForAdmin:", error);
     throw error;
   }
@@ -109,6 +113,10 @@ async function checkCollectionHandleExists(handle: string, excludeId?: string): 
 
     return (data && data.length > 0) || false;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in checkCollectionHandleExists:", error);
     return false;
   }
@@ -153,6 +161,10 @@ export async function createCollection(data: CreateCollectionData) {
 
     return collection;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in createCollection:", error);
     throw error;
   }
@@ -201,6 +213,10 @@ export async function updateCollection(data: UpdateCollectionData) {
 
     return collection;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in updateCollection:", error);
     throw error;
   }
@@ -225,6 +241,10 @@ export async function deleteCollection(collectionId: string) {
 
     return true;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in deleteCollection:", error);
     throw error;
   }

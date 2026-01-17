@@ -1,6 +1,16 @@
 import { createServerClient } from "./server";
 import type { Image } from "lib/types";
 
+// Helper to check if error is React.postpone()
+function isReactPostpone(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "$$typeof" in error &&
+    error.$$typeof === Symbol.for("react.postpone")
+  );
+}
+
 export interface CreateProductData {
   handle: string;
   title: string;
@@ -55,6 +65,10 @@ export async function getProductOrderCount(productId: string): Promise<number> {
 
     return count;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getProductOrderCount:", error);
     return 0;
   }
@@ -142,6 +156,10 @@ export async function getAllProductsForAdmin(params?: {
 
     return productsWithCounts;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getAllProductsForAdmin:", error);
     throw error;
   }
@@ -167,6 +185,10 @@ export async function getProductByIdForAdmin(productId: string) {
 
     return data;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in getProductByIdForAdmin:", error);
     throw error;
   }
@@ -199,6 +221,10 @@ async function checkHandleExists(handle: string, excludeId?: string): Promise<bo
 
     return (data && data.length > 0) || false;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in checkHandleExists:", error);
     return false;
   }
@@ -250,6 +276,10 @@ export async function createProduct(data: CreateProductData) {
 
     return product;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in createProduct:", error);
     throw error;
   }
@@ -305,6 +335,10 @@ export async function updateProduct(data: UpdateProductData) {
 
     return product;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in updateProduct:", error);
     throw error;
   }
@@ -329,6 +363,10 @@ export async function deleteProduct(productId: string) {
 
     return true;
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     console.error("Error in deleteProduct:", error);
     throw error;
   }

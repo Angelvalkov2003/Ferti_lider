@@ -130,6 +130,10 @@ export async function getCollections(): Promise<Collection[]> {
       updatedAt: item.updated_at || new Date().toISOString(),
     }));
   } catch (error) {
+    // Don't catch React.postpone() - let it propagate for PPR
+    if (isReactPostpone(error)) {
+      throw error;
+    }
     // Catch any unexpected errors and return empty array
     console.error("Error in getCollections:", error);
     return [];
