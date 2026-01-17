@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import Image from "next/image";
+import { memo } from "react";
 import Label from "../label";
 
-export function GridTileImage({
+export const GridTileImage = memo(function GridTileImage({
   isInteractive = true,
   active,
   label,
@@ -47,4 +48,4 @@ export function GridTileImage({
       ) : null}
     </div>
   );
-}
+});

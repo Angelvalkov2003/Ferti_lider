@@ -7,7 +7,6 @@ import type { Image } from "lib/types";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 
 export async function generateMetadata(props: {
   params: Promise<{ handle: string }>;
@@ -48,13 +47,27 @@ export default async function ProductPage(props: {
   const product = await getProduct(params.handle);
 
   if (!product) return notFound();
+  
+  // Pre-compute images array to avoid recreating it on every render
+  const galleryImages = [
+    // Главната снимка винаги е първа
+    {
+      src: product.featuredImage?.url || "",
+      altText: product.featuredImage?.altText || product.title,
+    },
+    // След това идват допълнителните снимки
+    ...(product.images || []).slice(0, 4).map((image: Image) => ({
+      src: image.url,
+      altText: image.altText || product.title,
+    })),
+  ].filter((img) => img.src);
 
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
     description: product.description,
-    image: product.featuredImage.url,
+    image: product.featuredImage?.url || "",
     offers: {
       "@type": "Offer",
       availability: product.available
@@ -76,32 +89,11 @@ export default async function ProductPage(props: {
       <div className="mx-auto max-w-(--breakpoint-2xl) px-4">
         <div className="flex flex-col rounded-lg border border-neutral-200 bg-white p-8 md:p-12 lg:flex-row lg:gap-8 dark:border-neutral-800 dark:bg-black">
           <div className="h-full w-full basis-full lg:basis-4/6">
-            <Suspense
-              fallback={
-                <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden" />
-              }
-            >
-              <Gallery
-                images={[
-                  // Главната снимка винаги е първа
-                  {
-                    src: product.featuredImage?.url || "",
-                    altText: product.featuredImage?.altText || product.title,
-                  },
-                  // След това идват допълнителните снимки
-                  ...(product.images || []).slice(0, 4).map((image: Image) => ({
-                    src: image.url,
-                    altText: image.altText || product.title,
-                  })),
-                ].filter((img) => img.src)} // Премахваме снимки без URL
-              />
-            </Suspense>
+            <Gallery images={galleryImages} />
           </div>
 
           <div className="basis-full lg:basis-2/6">
-            <Suspense fallback={null}>
-              <ProductDescription product={product} />
-            </Suspense>
+            <ProductDescription product={product} />
           </div>
         </div>
         <RelatedProducts category={product.category} currentId={product.id} />
@@ -112,20 +104,20 @@ export default async function ProductPage(props: {
 }
 
 async function RelatedProducts({ category, currentId }: { category?: string; currentId: string }) {
+  // Exclude current product directly in database query for better performance
   const relatedProducts = await getProducts({ 
     collection: category,
-    limit: 4 
+    limit: 4,
+    excludeId: currentId
   });
 
-  const filtered = relatedProducts.filter(p => p.id !== currentId).slice(0, 4);
-
-  if (!filtered.length) return null;
+  if (!relatedProducts.length) return null;
 
   return (
     <div className="py-8">
       <h2 className="mb-4 text-2xl font-bold">Свързани Продукти</h2>
       <ul className="flex w-full gap-4 overflow-x-auto pt-1">
-        {filtered.map((product) => (
+        {relatedProducts.map((product) => (
           <li
             key={product.handle}
             className="aspect-square w-full flex-none min-[475px]:w-1/2 sm:w-1/3 md:w-1/4 lg:w-1/5"

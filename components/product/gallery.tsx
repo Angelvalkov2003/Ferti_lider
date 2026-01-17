@@ -4,6 +4,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 import { GridTileImage } from "components/grid/tile";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 export function Gallery({
   images,
@@ -12,19 +13,35 @@ export function Gallery({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const imageIndex = searchParams.has("image")
-    ? parseInt(searchParams.get("image")!)
-    : 0;
+  const [imageIndex, setImageIndex] = useState(0);
+  const [mounted, setMounted] = useState(false);
 
-  const updateImage = (index: string) => {
+  useEffect(() => {
+    setMounted(true);
+    const index = searchParams.has("image")
+      ? parseInt(searchParams.get("image")!)
+      : 0;
+    setImageIndex(Math.max(0, Math.min(index, images.length - 1)));
+  }, [searchParams, images.length]);
+
+  // Use 0 as fallback during SSR to prevent hydration mismatch
+  const currentIndex = mounted ? imageIndex : 0;
+  const currentImage = useMemo(() => images[currentIndex], [images, currentIndex]);
+
+  const updateImage = useCallback((index: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("image", index);
     router.replace(`?${params.toString()}`, { scroll: false });
-  };
+  }, [searchParams, router]);
 
-  const nextImageIndex = imageIndex + 1 < images.length ? imageIndex + 1 : 0;
-  const previousImageIndex =
-    imageIndex === 0 ? images.length - 1 : imageIndex - 1;
+  const nextImageIndex = useMemo(() => 
+    currentIndex + 1 < images.length ? currentIndex + 1 : 0,
+    [currentIndex, images.length]
+  );
+  const previousImageIndex = useMemo(() =>
+    currentIndex === 0 ? images.length - 1 : currentIndex - 1,
+    [currentIndex, images.length]
+  );
 
   const buttonClassName =
     "h-full px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white flex items-center justify-center";
@@ -32,13 +49,13 @@ export function Gallery({
   return (
     <form>
       <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden">
-        {images[imageIndex] && (
+        {currentImage && (
           <Image
             className="h-full w-full object-contain"
             fill
             sizes="(min-width: 1024px) 66vw, 100vw"
-            alt={images[imageIndex]?.altText as string}
-            src={images[imageIndex]?.src as string}
+            alt={currentImage.altText}
+            src={currentImage.src}
             priority={true}
           />
         )}
@@ -69,7 +86,7 @@ export function Gallery({
       {images.length > 1 ? (
         <ul className="my-12 flex items-center flex-wrap justify-center gap-2 overflow-auto py-1 lg:mb-0">
           {images.map((image, index) => {
-            const isActive = index === imageIndex;
+            const isActive = index === currentIndex;
 
             return (
               <li key={image.src} className="h-20 w-20">

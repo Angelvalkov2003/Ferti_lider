@@ -1,4 +1,5 @@
 import type { Product, Collection } from "lib/types";
+import { cache } from "react";
 import { createServerClient } from "./server";
 
 export async function getProducts(params?: {
@@ -6,6 +7,7 @@ export async function getProducts(params?: {
   collection?: string;
   limit?: number;
   offset?: number;
+  excludeId?: string;
 }): Promise<Product[]> {
   try {
     const supabase = await createServerClient();
@@ -21,6 +23,11 @@ export async function getProducts(params?: {
 
     if (params?.collection) {
       query = query.eq("category", params.collection);
+    }
+
+    // Exclude specific product ID if provided
+    if (params?.excludeId) {
+      query = query.neq("id", params.excludeId);
     }
 
     if (params?.limit) {
@@ -51,35 +58,32 @@ export async function getProducts(params?: {
   }
 }
 
-export async function getProduct(handle: string): Promise<Product | null> {
+// Cache getProduct to prevent duplicate calls in the same request
+export const getProduct = cache(async (handle: string): Promise<Product | null> => {
   try {
     const supabase = await createServerClient();
     
     // Trim the handle to match database (in case there are trailing spaces)
     const trimmedHandle = handle.trim();
     
+    // Query directly by handle - much more efficient than fetching all products
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("available", true);
+      .eq("handle", trimmedHandle)
+      .eq("available", true)
+      .single();
 
-    if (error) {
+    if (error || !data) {
       return null;
     }
 
-    // Find product by handle (trim both for comparison)
-    const product = data?.find((p: any) => p.handle?.trim() === trimmedHandle);
-
-    if (!product) {
-      return null;
-    }
-
-    return transformProduct(product);
+    return transformProduct(data);
   } catch (error) {
     console.error("Error in getProduct:", error);
     return null;
   }
-}
+});
 
 export async function getCollections(): Promise<Collection[]> {
   try {
