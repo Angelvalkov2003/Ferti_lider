@@ -13,6 +13,26 @@ export function Gallery({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  const goToImage = useCallback((index: number) => {
+    if (index === currentIndex || isTransitioning) return;
+    
+    setIsTransitioning(true);
+    setCurrentIndex(index);
+    
+    // Reset transition state after animation
+    setTimeout(() => setIsTransitioning(false), 200);
+  }, [currentIndex, isTransitioning]);
+
+  const goToNext = useCallback(() => {
+    const nextIndex = (currentIndex + 1) % images.length;
+    goToImage(nextIndex);
+  }, [currentIndex, images.length, goToImage]);
+
+  const goToPrevious = useCallback(() => {
+    const prevIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    goToImage(prevIndex);
+  }, [currentIndex, images.length, goToImage]);
+
   // Preload adjacent images for instant switching
   useEffect(() => {
     if (images.length > 1 && typeof window !== "undefined") {
@@ -48,26 +68,6 @@ export function Gallery({
     window.addEventListener("keydown", handleKeyPress);
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [goToNext, goToPrevious]);
-
-  const goToImage = useCallback((index: number) => {
-    if (index === currentIndex || isTransitioning) return;
-    
-    setIsTransitioning(true);
-    setCurrentIndex(index);
-    
-    // Reset transition state after animation
-    setTimeout(() => setIsTransitioning(false), 200);
-  }, [currentIndex, isTransitioning]);
-
-  const goToNext = useCallback(() => {
-    const nextIndex = (currentIndex + 1) % images.length;
-    goToImage(nextIndex);
-  }, [currentIndex, images.length, goToImage]);
-
-  const goToPrevious = useCallback(() => {
-    const prevIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-    goToImage(prevIndex);
-  }, [currentIndex, images.length, goToImage]);
 
   const buttonClassName =
     "h-full px-6 transition-all ease-in-out hover:scale-110 hover:text-black dark:hover:text-white flex items-center justify-center";
