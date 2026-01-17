@@ -19,12 +19,19 @@ export function Gallery({
       const nextIndex = (currentIndex + 1) % images.length;
       const prevIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
       
-      // Preload next and previous images using Image objects
-      const preloadNext = new Image();
-      preloadNext.src = images[nextIndex].src;
+      // Preload next and previous images using DOM Image API
+      const nextImage = images[nextIndex];
+      const prevImage = images[prevIndex];
       
-      const preloadPrev = new Image();
-      preloadPrev.src = images[prevIndex].src;
+      if (nextImage) {
+        const preloadNext = new window.Image();
+        preloadNext.src = nextImage.src;
+      }
+      
+      if (prevImage) {
+        const preloadPrev = new window.Image();
+        preloadPrev.src = prevImage.src;
+      }
     }
   }, [currentIndex, images]);
 
