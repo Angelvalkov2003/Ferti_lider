@@ -131,18 +131,21 @@ export function CookieConsent() {
 
   if (!showBanner && !showSettings) {
     // Show settings button if consent was already given
-    const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
-    if (consent === "accepted") {
-      return (
-        <button
-          onClick={openSettings}
-          className="fixed bottom-4 right-4 z-50 p-3 bg-gray-800 dark:bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
-          aria-label="Cookie настройки"
-          title="Cookie настройки"
-        >
-          <Cog6ToothIcon className="h-5 w-5" />
-        </button>
-      );
+    // Only check localStorage on client side
+    if (typeof window !== "undefined") {
+      const consent = localStorage.getItem(COOKIE_CONSENT_KEY);
+      if (consent === "accepted") {
+        return (
+          <button
+            onClick={openSettings}
+            className="fixed bottom-4 right-4 z-50 p-3 bg-gray-800 dark:bg-gray-700 text-white rounded-full shadow-lg hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            aria-label="Cookie настройки"
+            title="Cookie настройки"
+          >
+            <Cog6ToothIcon className="h-5 w-5" />
+          </button>
+        );
+      }
     }
     return null;
   }
