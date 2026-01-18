@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-const EUR_TO_BGN_RATE = 1.96; // Exchange rate: 1 EUR = 1.96 BGN
+const EUR_TO_BGN_RATE = 1.95583; // Exchange rate: 1 EUR = 1.95583 BGN
 
 const Price = ({
   amount,

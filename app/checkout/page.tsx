@@ -367,6 +367,11 @@ export default function CheckoutPage() {
                     className="text-blue-600 dark:text-blue-400"
                   />
                 </div>
+                <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                  <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+                    Цените се изчисляват по курс 1 EUR = 1.95583 BGN
+                  </p>
+                </div>
               </div>
             </div>
           </div>
