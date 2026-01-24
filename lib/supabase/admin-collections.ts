@@ -13,6 +13,7 @@ function isReactPostpone(error: unknown): boolean {
 export interface CreateCollectionData {
   handle: string;
   title: string;
+  description?: string;
   position?: number;
 }
 
@@ -193,6 +194,7 @@ export async function updateCollection(data: UpdateCollectionData) {
       updateData.handle = trimmedHandle;
     }
     if (data.title !== undefined) updateData.title = data.title;
+    if (data.description !== undefined) updateData.description = data.description || null;
     if (data.position !== undefined) updateData.position = data.position;
 
     const { data: collection, error } = await supabase

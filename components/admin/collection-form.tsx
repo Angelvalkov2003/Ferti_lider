@@ -8,6 +8,7 @@ import { toast } from "sonner";
 interface CollectionFormData {
   handle: string;
   title: string;
+  description: string;
   position: string;
 }
 
@@ -22,6 +23,7 @@ export function CollectionForm({ collection }: CollectionFormProps) {
   const [formData, setFormData] = useState<CollectionFormData>({
     handle: collection?.handle || "",
     title: collection?.title || "",
+    description: collection?.description || "",
     position: collection?.position?.toString() || "0",
   });
 
@@ -75,6 +77,7 @@ export function CollectionForm({ collection }: CollectionFormProps) {
       const collectionData = {
         handle: finalHandle,
         title: formData.title,
+        description: formData.description.trim() || undefined,
         position: parseInt(formData.position) || 0,
       };
 
@@ -170,6 +173,22 @@ export function CollectionForm({ collection }: CollectionFormProps) {
             0 = първа позиция, по-големи числа = по-назад
           </p>
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Описание
+        </label>
+        <textarea
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          rows={4}
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+          placeholder="Описание на колекцията (незадължително)"
+        />
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+          Описание, което ще се показва под заглавието на колекцията
+        </p>
       </div>
 
       <div className="flex gap-4">

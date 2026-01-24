@@ -62,6 +62,11 @@ export default async function ProductsPage({
                 : "Всички Продукти"}
             </h1>
           </div>
+          {collection && collections.find((c) => c.handle === collection)?.description && (
+            <p className="mt-3 mb-4 text-lg text-neutral-700 dark:text-neutral-300">
+              {collections.find((c) => c.handle === collection)?.description}
+            </p>
+          )}
           {products.length > 0 && (
             <p className="mb-4 text-neutral-600 dark:text-neutral-400">
               {products.length} {products.length === 1 ? "продукт" : "продукта"}

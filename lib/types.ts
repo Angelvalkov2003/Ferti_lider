@@ -65,6 +65,7 @@ export type Collection = {
   id: string;
   handle: string;
   title: string;
+  description?: string;
   updatedAt: string;
 };
 

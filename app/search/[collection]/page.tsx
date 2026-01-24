@@ -37,6 +37,11 @@ export default async function CategoryPage(props: {
     <section>
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{collection.title}</h1>
+        {collection.description && (
+          <p className="mt-3 text-lg text-neutral-700 dark:text-neutral-300">
+            {collection.description}
+          </p>
+        )}
         {products.length > 0 && (
           <p className="mt-2 text-neutral-600 dark:text-neutral-400">
             {products.length} {products.length === 1 ? 'продукт' : 'продукта'}

@@ -185,6 +185,7 @@ export async function getCollections(): Promise<Collection[]> {
       id: item.id,
       handle: item.handle,
       title: item.title,
+      description: item.description || undefined,
       updatedAt: item.updated_at || new Date().toISOString(),
     }));
   } catch (error) {

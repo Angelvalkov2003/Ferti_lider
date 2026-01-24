@@ -23,6 +23,7 @@ CREATE TABLE collections (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     handle TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
+    description TEXT,
     position INTEGER NOT NULL DEFAULT 0,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
