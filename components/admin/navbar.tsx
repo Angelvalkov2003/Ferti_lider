@@ -64,13 +64,13 @@ export function AdminNavbar() {
                 href="/admin"
                 className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
               >
-                <span className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
+                <span className="relative h-12 w-12 flex-shrink-0 sm:h-14 sm:w-14">
                   <Image
                     src="/logo.png"
                     alt=""
                     fill
-                    className="object-contain p-0.5"
-                    sizes="36px"
+                    className="object-contain object-center p-0"
+                    sizes="(max-width: 640px) 48px, 56px"
                   />
                 </span>
                 Админ панел

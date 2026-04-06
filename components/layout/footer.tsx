@@ -1,101 +1,92 @@
 import Link from "next/link";
 
-import FooterMenu from "components/layout/footer-menu";
 import LogoSquare from "components/logo-square";
 import {
+  getFacebookUrl,
   getSiteEmail,
   getSitePhone,
   getSitePhoneTelHref,
+  getWhatsAppUrl,
   SITE_ADDRESS_FULL,
 } from "lib/site-contact";
-import { getCollections } from "lib/supabase/products";
-import { Suspense } from "react";
 
-const SITE_NAME = process.env.SITE_NAME || "Ecommerce Store";
+const SITE_NAME = process.env.SITE_NAME || "Ferti Lider";
 
-export default async function Footer() {
-  const currentYear = new Date().getFullYear();
-  const copyrightDate = 2023 + (currentYear > 2023 ? `-${currentYear}` : "");
-  const skeleton =
-    "w-full h-6 animate-pulse rounded-sm bg-neutral-200 dark:bg-neutral-700";
-  const collections = await getCollections();
-  const menu = collections.map(c => ({ title: c.title, path: `/search/${c.handle}` }));
-  const copyrightName = SITE_NAME;
+const sep = (
+  <span className="text-brand-300/80 dark:text-brand-700" aria-hidden>
+    ·
+  </span>
+);
+
+export default function Footer() {
+  const phone = getSitePhone();
+  const email = getSiteEmail();
+  const wa = getWhatsAppUrl();
+  const facebookUrl = getFacebookUrl();
 
   return (
-    <footer className="text-sm text-neutral-500 dark:text-neutral-400">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 border-t border-neutral-200 px-6 py-12 text-sm md:flex-row md:gap-12 md:px-4 min-[1320px]:px-0 dark:border-neutral-700">
-        <div className="max-w-sm">
+    <footer className="border-t border-brand-200/70 bg-brand-50 text-xs text-neutral-700 dark:border-brand-800 dark:bg-brand-950/45 dark:text-neutral-300 sm:text-sm">
+      <div className="mx-auto max-w-7xl space-y-3 px-4 py-5 min-[1320px]:px-0">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
-            className="flex items-center gap-2 text-black md:pt-1 dark:text-white"
             href="/"
+            className="inline-flex items-center gap-2 text-neutral-900 dark:text-white"
           >
             <LogoSquare size="sm" />
-            <span className="uppercase">{SITE_NAME}</span>
+            <span className="font-semibold">{SITE_NAME}</span>
           </Link>
-          <nav className="mt-4 flex flex-col gap-2 text-sm">
-            <Link
-              href="/za-nas"
-              className="text-neutral-600 hover:text-brand-600 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
-            >
-              За нас
-            </Link>
+          <nav className="flex flex-wrap gap-x-4 gap-y-1">
             <Link
               href="/contact"
-              className="text-neutral-600 hover:text-brand-600 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
+              className="font-medium text-brand-700 hover:underline dark:text-brand-400"
             >
               Контакти
             </Link>
             <Link
               href="/privacy-policy"
-              className="text-neutral-600 hover:text-brand-600 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
+              className="hover:text-brand-600 hover:underline dark:text-neutral-400"
             >
               Политика за поверителност
             </Link>
           </nav>
-          <p className="mt-4 text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
-            {SITE_ADDRESS_FULL}
-          </p>
-          <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-            <a
-              href={getSitePhoneTelHref()}
-              className="hover:text-brand-600 dark:hover:text-brand-400"
-            >
-              {getSitePhone()}
-            </a>
-            {" · "}
-            <a
-              href={`mailto:${getSiteEmail()}`}
-              className="hover:text-brand-600 dark:hover:text-brand-400"
-            >
-              {getSiteEmail()}
-            </a>
-          </p>
         </div>
-        <Suspense
-          fallback={
-            <div className="flex h-[188px] w-[200px] flex-col gap-2">
-              <div className={skeleton} />
-              <div className={skeleton} />
-              <div className={skeleton} />
-              <div className={skeleton} />
-              <div className={skeleton} />
-              <div className={skeleton} />
-            </div>
-          }
-        >
-          <FooterMenu menu={menu} />
-        </Suspense>
-      </div>
-      <div className="border-t border-neutral-200 py-6 text-sm dark:border-neutral-700">
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-center px-4 md:px-4 min-[1320px]:px-0">
-          <p>
-            &copy; {copyrightDate} {copyrightName}
-            {copyrightName.length && !copyrightName.endsWith(".")
-              ? "."
-              : ""}{" "}
-            Всички права запазени.
-          </p>
+
+        <p className="text-neutral-600 dark:text-neutral-400">
+          {SITE_ADDRESS_FULL}
+        </p>
+
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <a
+            href={getSitePhoneTelHref()}
+            className="hover:text-brand-600 dark:hover:text-brand-400"
+          >
+            {phone}
+          </a>
+          {sep}
+          <a
+            href={wa}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-brand-600 dark:hover:text-brand-400"
+          >
+            WhatsApp
+          </a>
+          {sep}
+          <a
+            href={`mailto:${email}`}
+            className="break-all hover:text-brand-600 dark:hover:text-brand-400"
+          >
+            {email}
+          </a>
+          {sep}
+          <a
+            href={facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-brand-600 dark:hover:text-brand-400"
+          >
+            Facebook
+          </a>
         </div>
       </div>
     </footer>

@@ -5,15 +5,17 @@ import Image from "next/image";
 
 const LOGO_SRC = "/logo.png";
 
-export default function LogoSquare({ size }: { size?: "sm" | undefined }) {
+export default function LogoSquare({ size }: { size?: "sm" | "lg" }) {
   const isSm = size === "sm";
+  const isLg = size === "lg";
   return (
     <div
       className={clsx(
-        "relative flex flex-none items-center justify-center overflow-hidden border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-950",
+        "relative flex flex-none items-center justify-center overflow-visible bg-transparent",
         {
-          "h-10 w-10 rounded-xl": !isSm,
-          "h-8 w-8 rounded-lg": isSm,
+          "h-[4.5rem] w-[4.5rem] max-h-[4.5rem] max-w-[4.5rem]": isLg,
+          "h-20 w-20 sm:h-24 sm:w-24": !isSm && !isLg,
+          "h-9 w-9 rounded-lg": isSm,
         },
       )}
     >
@@ -21,8 +23,14 @@ export default function LogoSquare({ size }: { size?: "sm" | undefined }) {
         src={LOGO_SRC}
         alt=""
         fill
-        className="object-contain p-1"
-        sizes={isSm ? "32px" : "40px"}
+        className={clsx("object-contain object-center", isSm ? "p-0.5" : "p-0")}
+        sizes={
+          isSm
+            ? "36px"
+            : isLg
+              ? "72px"
+              : "(max-width: 640px) 80px, 96px"
+        }
         priority
       />
     </div>

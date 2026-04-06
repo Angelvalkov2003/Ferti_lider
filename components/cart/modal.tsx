@@ -16,7 +16,11 @@ import { DeleteItemButton } from "./delete-item-button";
 import { EditItemQuantityButton } from "./edit-item-quantity-button";
 import OpenCart from "./open-cart";
 
-export default function CartModal() {
+export default function CartModal({
+  compactTrigger,
+}: {
+  compactTrigger?: boolean;
+} = {}) {
   const { cart, updateCartItem } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const openCart = () => setIsOpen(true);
@@ -27,8 +31,13 @@ export default function CartModal() {
 
   return (
     <>
-      <button aria-label="Отвори количка" onClick={openCart}>
-        <OpenCart quantity={cart?.totalQuantity} />
+      <button
+        type="button"
+        aria-label="Отвори количка"
+        onClick={openCart}
+        className={compactTrigger ? "max-h-9 max-w-9 shrink-0" : undefined}
+      >
+        <OpenCart compact={compactTrigger} quantity={cart?.totalQuantity} />
       </button>
       <Transition show={isOpen}>
         <Dialog onClose={closeCart} className="relative z-50">

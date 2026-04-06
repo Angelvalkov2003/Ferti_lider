@@ -62,9 +62,9 @@ export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
       <button
         onClick={openMobileMenu}
         aria-label="Open mobile menu"
-        className="flex h-11 w-11 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors md:hidden dark:border-neutral-700 dark:text-white"
+        className="flex h-9 w-9 max-h-9 max-w-9 shrink-0 items-center justify-center rounded-md border border-neutral-200 text-black transition-colors md:hidden dark:border-neutral-700 dark:text-white"
       >
-        <Bars3Icon className="h-4" />
+        <Bars3Icon className="h-[1.05rem] w-[1.05rem]" />
       </button>
       <Transition show={isOpen}>
         <Dialog onClose={closeMobileMenu} className="relative z-50">
@@ -141,11 +141,6 @@ export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
                           ))}
                       </ul>
                     )}
-                  </li>
-                  <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
-                    <Link href="/za-nas" prefetch={true} onClick={closeMobileMenu}>
-                      За нас
-                    </Link>
                   </li>
                   <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
                     <Link

@@ -10,7 +10,7 @@ type Route = {
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["", "/contact", "/za-nas", "/privacy-policy", "/products", "/search"];
+  const staticPaths = ["", "/contact", "/privacy-policy", "/products", "/search"];
   const routesMap = staticPaths.map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),

@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { SITE_LOGO_PATH } from "lib/site-brand";
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error("RESEND_API_KEY is not set");
@@ -12,6 +13,26 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const contactEmail = process.env.CONTACT_EMAIL;
 const siteName = process.env.SITE_NAME || "Ecommerce Store";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m] || m);
+}
+
+/** Absolute logo URL for HTML emails (public /logo.png). */
+function emailBrandingHeader(): string {
+  const base = siteUrl.replace(/\/$/, "");
+  const logoUrl = `${base}${SITE_LOGO_PATH}`;
+  return `<div style="margin:0 auto 24px;max-width:560px;text-align:center;">
+    <img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(siteName)}" width="140" height="140" style="max-width:160px;height:auto;object-fit:contain;display:inline-block;border:0;" />
+  </div>`;
+}
 
 export interface ContactFormData {
   name: string;
@@ -52,6 +73,7 @@ export async function sendContactFormEmail(data: ContactFormData) {
       replyTo: data.email,
       subject: data.subject || `New Contact Form Submission from ${data.name}`,
       html: `
+        ${emailBrandingHeader()}
         <h2>New Contact Form Submission</h2>
         <p><strong>Name:</strong> ${escapeHtml(data.name)}</p>
         <p><strong>Email:</strong> ${escapeHtml(data.email)}</p>
@@ -125,6 +147,7 @@ export async function sendNewOrderNotification(data: OrderNotificationData) {
       replyTo: data.customerEmail,
       subject: `New Order #${data.orderId.substring(0, 8)} - ${siteName}`,
       html: `
+        ${emailBrandingHeader()}
         <h2>New Order Received</h2>
         <p><strong>Order ID:</strong> ${escapeHtml(data.orderId)}</p>
         <p><strong>Total Price:</strong> €${data.totalPrice.toFixed(2)}</p>
@@ -217,16 +240,3 @@ function getDomainFromEmail(email: string): string {
   return "resend.dev";
 }
 
-/**
- * Helper function to escape HTML to prevent XSS
- */
-function escapeHtml(text: string): string {
-  const map: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
-  };
-  return text.replace(/[&<>"']/g, (m) => map[m] || m);
-}

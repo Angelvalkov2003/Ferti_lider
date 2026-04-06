@@ -59,3 +59,9 @@ export function getGoogleMapsEmbedUrl(): string {
   const q = encodeURIComponent(SITE_ADDRESS_FULL);
   return `https://maps.google.com/maps?q=${q}&hl=bg&z=13&ie=UTF8&iwloc=&output=embed`;
 }
+
+const DEFAULT_FACEBOOK_URL = "https://www.facebook.com/fertiliderltd/";
+
+export function getFacebookUrl(): string {
+  return envOr(DEFAULT_FACEBOOK_URL, "NEXT_PUBLIC_FACEBOOK_URL");
+}
