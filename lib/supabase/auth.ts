@@ -1,4 +1,8 @@
-import { getSupabaseServerClient } from "./server";
+import { cookies } from "next/headers";
+import {
+  ADMIN_SESSION_COOKIE,
+  verifyAdminSessionToken,
+} from "lib/admin-session";
 
 // Helper to check if error is React.postpone()
 function isReactPostpone(error: unknown): boolean {
@@ -11,25 +15,14 @@ function isReactPostpone(error: unknown): boolean {
 }
 
 /**
- * Check if admin is authenticated (has valid Supabase Auth session)
+ * Админ сесия: парола от ADMIN_PASSWORD + httpOnly бисквитка (не Supabase Auth).
  */
 export async function isAdmin(): Promise<boolean> {
   try {
-    const supabase = await getSupabaseServerClient();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      return false;
-    }
-
-    // User is authenticated - for MVP, any authenticated user can access admin
-    // You can add role-based checks here if needed (e.g., check admins table)
-    return true;
+    const store = await cookies();
+    const token = store.get(ADMIN_SESSION_COOKIE)?.value;
+    return verifyAdminSessionToken(token);
   } catch (error) {
-    // Don't catch React.postpone() - let it propagate for PPR
     if (isReactPostpone(error)) {
       throw error;
     }
@@ -38,28 +31,7 @@ export async function isAdmin(): Promise<boolean> {
   }
 }
 
-/**
- * Get current authenticated user
- */
+/** Няма потребителски профил при env-парола — връща null. */
 export async function getCurrentUser() {
-  try {
-    const supabase = await getSupabaseServerClient();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error || !user) {
-      return null;
-    }
-
-    return user;
-  } catch (error) {
-    // Don't catch React.postpone() - let it propagate for PPR
-    if (isReactPostpone(error)) {
-      throw error;
-    }
-    console.error("Error getting current user:", error);
-    return null;
-  }
+  return null;
 }

@@ -6,6 +6,7 @@ import { useCart } from "components/cart/cart-context";
 import Price from "components/price";
 import { createOrder } from "app/checkout/actions";
 import LoadingDots from "components/loading-dots";
+import { DEFAULT_VARIANT_TITLE } from "lib/package-options";
 
 export default function CheckoutPage() {
   const { cart } = useCart();
@@ -50,12 +51,26 @@ export default function CheckoutPage() {
 
     try {
       // Prepare products data
-      const products = cart.items.map((item) => ({
-        id: item.productId,
-        name: item.product.title,
-        price: item.price,
-        quantity: item.quantity,
-      }));
+      const products = cart.items.map((item) => {
+        const v = item.variant.title;
+        const variantLabel =
+          v && v !== DEFAULT_VARIANT_TITLE ? v : null;
+        const name = variantLabel
+          ? `${item.product.title} (${variantLabel})`
+          : item.product.title;
+        const unit = item.price;
+        const qty = item.quantity;
+        const lineTotal = Math.round(unit * qty * 100) / 100;
+        return {
+          id: item.productId,
+          name,
+          price: unit,
+          quantity: qty,
+          variant_id: item.variantId,
+          variant_label: variantLabel,
+          line_total: lineTotal,
+        };
+      });
 
       // Create order
       const order = await createOrder({
@@ -331,6 +346,11 @@ export default function CheckoutPage() {
                       <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {item.product.title}
                       </p>
+                      {item.variant.title !== DEFAULT_VARIANT_TITLE ? (
+                        <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {item.variant.title} — €{item.price.toFixed(2)} / бр.
+                        </p>
+                      ) : null}
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Количество: {item.quantity}
                       </p>

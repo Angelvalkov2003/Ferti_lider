@@ -250,12 +250,23 @@ export default async function OrderDetailPage({
                       <p className="font-medium text-gray-900 dark:text-white">
                         {product.name}
                       </p>
+                      {product.variant_label ? (
+                        <p className="text-sm text-amber-700 dark:text-amber-300">
+                          Опаковка / размер: {product.variant_label}
+                        </p>
+                      ) : null}
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Количество: {product.quantity} × €{product.price.toFixed(2)}
+                        Ед. цена: €{Number(product.price).toFixed(2)} ×{" "}
+                        {product.quantity} бр.
                       </p>
                     </div>
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      €{(product.price * product.quantity).toFixed(2)}
+                    <p className="font-medium text-gray-900 dark:text-white whitespace-nowrap ml-2">
+                      €
+                      {(
+                        product.line_total != null
+                          ? Number(product.line_total)
+                          : Number(product.price) * Number(product.quantity)
+                      ).toFixed(2)}
                     </p>
                   </div>
                 </div>

@@ -1,68 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import {
+  adminPasswordMatches,
+  ADMIN_SESSION_COOKIE,
+  createAdminSessionToken,
+} from "lib/admin-session";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!process.env.ADMIN_PASSWORD) {
       return NextResponse.json(
-        { error: "Липсват Supabase environment variables" },
+        { error: "Липсва ADMIN_PASSWORD в средата (.env.local)" },
         { status: 500 }
       );
     }
 
     const body = await request.json();
-    const { email, password } = body;
+    const password = typeof body.password === "string" ? body.password : "";
 
-    if (!email || !password) {
+    if (!password) {
       return NextResponse.json(
-        { error: "Имейл и парола са задължителни" },
+        { error: "Паролата е задължителна" },
         { status: 400 }
       );
     }
 
-    const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options);
-        },
-        remove(name: string, options: any) {
-          cookieStore.set(name, "", { ...options, maxAge: 0 });
-        },
-      },
-    });
-
-    // Sign in with email and password
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
+    if (!adminPasswordMatches(password)) {
       return NextResponse.json(
-        { error: error.message || "Невалиден имейл или парола" },
+        { error: "Невалидна парола" },
         { status: 401 }
       );
     }
 
-    if (!data.user) {
-      return NextResponse.json(
-        { error: "Грешка при влизане" },
-        { status: 401 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: true, message: "Успешно влизане", user: data.user },
+    const token = createAdminSessionToken();
+    const res = NextResponse.json(
+      { success: true, message: "Успешно влизане" },
       { status: 200 }
     );
+
+    res.cookies.set({
+      name: ADMIN_SESSION_COOKIE,
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return res;
   } catch (error: any) {
     console.error("Error processing admin login:", error);
     return NextResponse.json(

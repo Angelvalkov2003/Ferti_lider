@@ -5,7 +5,15 @@ import { useRouter } from "next/navigation";
 import { createProductAction, updateProductAction } from "app/admin/products/actions";
 import { toast } from "sonner";
 import type { Image } from "lib/types";
+import type { PackageOptionRow } from "lib/supabase/admin-products";
 import { ImageUploadButton } from "./image-upload-button";
+
+interface PackageOptionFormRow {
+  id: string;
+  label: string;
+  price: string;
+  compare_at_price: string;
+}
 
 interface ProductFormData {
   handle: string;
@@ -18,6 +26,21 @@ interface ProductFormData {
   available: boolean;
   position: string;
   images: Image[];
+  packageOptions: PackageOptionFormRow[];
+}
+
+function mapDbPackageOptions(product?: any): PackageOptionFormRow[] {
+  const raw = product?.package_options;
+  if (!Array.isArray(raw)) return [];
+  return raw.map((o: any) => ({
+    id: typeof o.id === "string" && o.id ? o.id : `opt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    label: String(o.label ?? ""),
+    price: o.price != null && o.price !== "" ? String(o.price) : "",
+    compare_at_price:
+      o.compare_at_price != null && o.compare_at_price !== ""
+        ? String(o.compare_at_price)
+        : "",
+  }));
 }
 
 interface ProductFormProps {
@@ -41,6 +64,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
     available: product?.available !== false,
     position: product?.position?.toString() || "0",
     images: product?.images || [],
+    packageOptions: mapDbPackageOptions(product),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,12 +89,58 @@ export function ProductForm({ product, collections }: ProductFormProps) {
       // Generate handle from title if not provided, and trim to remove any spaces
       const finalHandle = (formData.handle.trim() || generateHandleFromTitle(formData.title)).trim();
 
+      const normalizedOptions: PackageOptionRow[] = formData.packageOptions
+        .map((row) => ({
+          id: row.id,
+          label: row.label.trim(),
+          price: parseFloat(row.price),
+          compare_at_price: row.compare_at_price.trim()
+            ? parseFloat(row.compare_at_price)
+            : undefined,
+        }))
+        .filter(
+          (o) =>
+            o.label.length > 0 &&
+            Number.isFinite(o.price) &&
+            o.price >= 0
+        );
+
+      const incompleteVariant = formData.packageOptions.some((row) => {
+        const hasLabel = row.label.trim().length > 0;
+        const hasPrice = row.price.trim() !== "";
+        if (!hasLabel && !hasPrice) return false;
+        const p = parseFloat(row.price);
+        return !hasLabel || !hasPrice || !Number.isFinite(p) || p < 0;
+      });
+      if (incompleteVariant) {
+        toast.error(
+          "Попълни етикет и валидна цена за всеки започнат вариант, или го премахни."
+        );
+        setLoading(false);
+        return;
+      }
+
+      const hasVariants = normalizedOptions.length > 0;
+      const basePrice = parseFloat(formData.price);
+      if (!hasVariants && (!Number.isFinite(basePrice) || basePrice < 0)) {
+        toast.error("Моля, въведи валидна цена или добави поне един вариант.");
+        setLoading(false);
+        return;
+      }
+
       const productData = {
         handle: finalHandle,
         title: formData.title,
         description: formData.description || undefined,
-        price: parseFloat(formData.price),
-        compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : undefined,
+        price: hasVariants
+          ? Math.min(...normalizedOptions.map((o) => o.price))
+          : basePrice,
+        compare_at_price: hasVariants
+          ? undefined
+          : formData.compare_at_price
+            ? parseFloat(formData.compare_at_price)
+            : undefined,
+        package_options: hasVariants ? normalizedOptions : [],
         featured_image: featuredImage,
         images: imagesWithAltText,
         category: formData.category || undefined,
@@ -342,19 +412,140 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         />
       </div>
 
+      <div className="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/30 p-4 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Варианти (опаковка / грамаж)
+            </h3>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+              Напр. „200 г – 10 €“, „1 кг – 35 €“. Можеш да добавяш неограничен брой. В списъците се показва най-ниската цена.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              setFormData((prev) => ({
+                ...prev,
+                packageOptions: [
+                  ...prev.packageOptions,
+                  {
+                    id:
+                      typeof crypto !== "undefined" && crypto.randomUUID
+                        ? crypto.randomUUID()
+                        : `new-${Date.now()}`,
+                    label: "",
+                    price: "",
+                    compare_at_price: "",
+                  },
+                ],
+              }))
+            }
+            className="text-sm px-3 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+          >
+            + Добави вариант
+          </button>
+        </div>
+        {formData.packageOptions.length > 0 ? (
+          <ul className="space-y-3">
+            {formData.packageOptions.map((row, index) => (
+              <li
+                key={row.id}
+                className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end p-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+              >
+                <div className="md:col-span-4">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Етикет (напр. 200 г, 1 кг)
+                  </label>
+                  <input
+                    type="text"
+                    value={row.label}
+                    onChange={(e) => {
+                      const next = [...formData.packageOptions];
+                      const cur = next[index];
+                      if (cur) next[index] = { ...cur, label: e.target.value };
+                      setFormData({ ...formData, packageOptions: next });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                    placeholder="200 г"
+                  />
+                </div>
+                <div className="md:col-span-3">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Цена (EUR)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={row.price}
+                    onChange={(e) => {
+                      const next = [...formData.packageOptions];
+                      const cur = next[index];
+                      if (cur) next[index] = { ...cur, price: e.target.value };
+                      setFormData({ ...formData, packageOptions: next });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  />
+                </div>
+                <div className="md:col-span-3">
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                    Стара цена (по избор)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={row.compare_at_price}
+                    onChange={(e) => {
+                      const next = [...formData.packageOptions];
+                      const cur = next[index];
+                      if (cur)
+                        next[index] = { ...cur, compare_at_price: e.target.value };
+                      setFormData({ ...formData, packageOptions: next });
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  />
+                </div>
+                <div className="md:col-span-2 flex md:justify-end">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        packageOptions: formData.packageOptions.filter((_, i) => i !== index),
+                      })
+                    }
+                    className="text-sm text-red-600 hover:text-red-700 py-2"
+                  >
+                    Премахни
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Цена *
+            {formData.packageOptions.length > 0 ? "Единна цена (скрита при варианти)" : "Цена *"}
           </label>
           <input
             type="number"
             step="0.01"
-            required
+            required={formData.packageOptions.length === 0}
+            disabled={formData.packageOptions.length > 0}
             value={formData.price}
             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white disabled:opacity-50"
           />
+          {formData.packageOptions.length > 0 ? (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              При варианти основната цена в магазина е най-ниската от тях.
+            </p>
+          ) : null}
         </div>
 
         <div>
@@ -366,8 +557,14 @@ export function ProductForm({ product, collections }: ProductFormProps) {
             step="0.01"
             value={formData.compare_at_price}
             onChange={(e) => setFormData({ ...formData, compare_at_price: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            disabled={formData.packageOptions.length > 0}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white disabled:opacity-50"
           />
+          {formData.packageOptions.length > 0 ? (
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Използвай „стара цена“ по ред във вариантите.
+            </p>
+          ) : null}
         </div>
 
         <div>

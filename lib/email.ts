@@ -34,6 +34,9 @@ export interface OrderNotificationData {
     name: string;
     price: number;
     quantity: number;
+    variant_id?: string;
+    variant_label?: string | null;
+    line_total?: number;
   }>;
   comment?: string;
 }
@@ -91,18 +94,29 @@ This email was sent from the contact form on ${siteName}
  */
 export async function sendNewOrderNotification(data: OrderNotificationData) {
   try {
+    const lineAmount = (p: (typeof data.products)[0]) =>
+      p.line_total ?? p.price * p.quantity;
+
     const productsList = data.products
-      .map(
-        (product) =>
-          `  • ${escapeHtml(product.name)} - ${product.quantity}x $${product.price.toFixed(2)} = $${(product.price * product.quantity).toFixed(2)}`
-      )
+      .map((product) => {
+        const sub = lineAmount(product).toFixed(2);
+        const variantNote =
+          product.variant_label != null && product.variant_label !== ""
+            ? ` [${escapeHtml(product.variant_label)}]`
+            : "";
+        return `  • ${escapeHtml(product.name)}${variantNote} — ${product.quantity} × €${product.price.toFixed(2)} = €${sub}`;
+      })
       .join("\n");
 
     const productsListHtml = data.products
-      .map(
-        (product) =>
-          `<li>${escapeHtml(product.name)} - ${product.quantity}x $${product.price.toFixed(2)} = $${(product.price * product.quantity).toFixed(2)}</li>`
-      )
+      .map((product) => {
+        const sub = lineAmount(product).toFixed(2);
+        const variantNote =
+          product.variant_label != null && product.variant_label !== ""
+            ? ` <span style="color:#666">(${escapeHtml(product.variant_label)})</span>`
+            : "";
+        return `<li>${escapeHtml(product.name)}${variantNote} — ${product.quantity} × €${product.price.toFixed(2)} = €${sub}</li>`;
+      })
       .join("");
 
     const { data: emailData, error } = await resend.emails.send({
@@ -113,7 +127,7 @@ export async function sendNewOrderNotification(data: OrderNotificationData) {
       html: `
         <h2>New Order Received</h2>
         <p><strong>Order ID:</strong> ${escapeHtml(data.orderId)}</p>
-        <p><strong>Total Price:</strong> $${data.totalPrice.toFixed(2)}</p>
+        <p><strong>Total Price:</strong> €${data.totalPrice.toFixed(2)}</p>
         
         <h3>Customer Information</h3>
         <p><strong>Name:</strong> ${escapeHtml(data.customerName)}</p>
@@ -137,7 +151,7 @@ export async function sendNewOrderNotification(data: OrderNotificationData) {
 New Order Received
 
 Order ID: ${data.orderId}
-Total Price: $${data.totalPrice.toFixed(2)}
+Total Price: €${data.totalPrice.toFixed(2)}
 
 Customer Information:
 Name: ${data.customerName}

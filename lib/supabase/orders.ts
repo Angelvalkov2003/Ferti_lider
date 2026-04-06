@@ -1,16 +1,12 @@
 import { createServerClient } from "./server";
+import type { OrderLineSnapshot } from "lib/types";
 
 export interface CreateOrderData {
   customer_name: string;
   customer_email: string;
   customer_phone?: string;
   customer_address: string;
-  products: Array<{
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-  }>;
+  products: OrderLineSnapshot[];
   total_price: number;
   payment_method: "cash_on_delivery" | "card";
   comment?: string;
@@ -22,12 +18,15 @@ export interface CreateOrderData {
 export async function createOrder(data: CreateOrderData) {
   const supabase = await createServerClient();
 
-  // Prepare products as JSONB
+  // Prepare products as JSONB (всеки вариант = отделен ред)
   const productsJson = data.products.map((product) => ({
     id: product.id,
     name: product.name,
     price: product.price,
     quantity: product.quantity,
+    variant_id: product.variant_id,
+    variant_label: product.variant_label,
+    line_total: product.line_total,
   }));
 
   // Insert order into database

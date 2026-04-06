@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { DEFAULT_VARIANT_TITLE } from "lib/package-options";
 import type { Cart } from "./types";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -13,17 +14,24 @@ export async function createCheckoutSession(cart: Cart, successUrl: string, canc
   // Ensure currency is always EUR
   const currency = "eur";
   
-  const lineItems = cart.items.map((item) => ({
-    price_data: {
-      currency: currency,
-      product_data: {
-        name: item.product.title,
-        images: item.product.image.url ? [item.product.image.url] : [],
+  const lineItems = cart.items.map((item) => {
+    const v = item.variant.title;
+    const name =
+      v && v !== DEFAULT_VARIANT_TITLE
+        ? `${item.product.title} (${v})`
+        : item.product.title;
+    return {
+      price_data: {
+        currency: currency,
+        product_data: {
+          name,
+          images: item.product.image.url ? [item.product.image.url] : [],
+        },
+        unit_amount: Math.round(item.price * 100), // Convert to cents
       },
-      unit_amount: Math.round(item.price * 100), // Convert to cents
-    },
-    quantity: item.quantity,
-  }));
+      quantity: item.quantity,
+    };
+  });
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],

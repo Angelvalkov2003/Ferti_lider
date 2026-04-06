@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { createServerClient } from "./server";
 import type { Image } from "lib/types";
 
@@ -11,6 +12,13 @@ function isReactPostpone(error: unknown): boolean {
   );
 }
 
+export type PackageOptionRow = {
+  id: string;
+  label: string;
+  price: number;
+  compare_at_price?: number;
+};
+
 export interface CreateProductData {
   handle: string;
   title: string;
@@ -19,9 +27,35 @@ export interface CreateProductData {
   compare_at_price?: number;
   featured_image?: Image;
   images?: Image[];
+  /** Варианти (опаковка / грамаж). Ако има поне един, основната цена в БД = min(варианти) */
+  package_options?: PackageOptionRow[];
   category?: string;
   available?: boolean;
   position?: number;
+}
+
+function normalizePackageOptionsForDb(
+  options: PackageOptionRow[] | undefined
+): { rows: Record<string, unknown>[]; minPrice: number | null } {
+  if (!options?.length) return { rows: [], minPrice: null };
+  const rows: Record<string, unknown>[] = [];
+  for (const o of options) {
+    const label = String(o.label ?? "").trim();
+    const price = Number(o.price);
+    if (!label || !Number.isFinite(price) || price < 0) continue;
+    const id = String(o.id ?? "").trim() || randomUUID();
+    const row: Record<string, unknown> = { id, label, price };
+    const cap = o.compare_at_price;
+    if (cap != null && Number.isFinite(Number(cap)) && Number(cap) >= 0) {
+      row.compare_at_price = Number(cap);
+    }
+    rows.push(row);
+  }
+  if (!rows.length) return { rows: [], minPrice: null };
+  return {
+    rows,
+    minPrice: Math.min(...rows.map((r) => Number(r.price))),
+  };
 }
 
 export interface UpdateProductData extends Partial<CreateProductData> {
@@ -245,12 +279,21 @@ export async function createProduct(data: CreateProductData) {
       throw new Error(`Slug "${trimmedHandle}" вече е зает. Моля, изберете друг slug.`);
     }
     
+    const { rows: packageRows, minPrice } = normalizePackageOptionsForDb(
+      data.package_options
+    );
+    const effectivePrice =
+      minPrice !== null ? minPrice : data.price;
+    const effectiveCompare =
+      packageRows.length > 0 ? null : data.compare_at_price ?? null;
+
     const productData = {
       handle: trimmedHandle,
       title: data.title,
       description: data.description || null,
-      price: data.price,
-      compare_at_price: data.compare_at_price || null,
+      price: effectivePrice,
+      compare_at_price: effectiveCompare,
+      package_options: packageRows,
       featured_image: data.featured_image || null,
       images: data.images || [],
       category: data.category || null,
@@ -309,8 +352,27 @@ export async function updateProduct(data: UpdateProductData) {
     }
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description || null;
-    if (data.price !== undefined) updateData.price = data.price;
-    if (data.compare_at_price !== undefined) updateData.compare_at_price = data.compare_at_price || null;
+
+    if (data.package_options !== undefined) {
+      const { rows: packageRows, minPrice } = normalizePackageOptionsForDb(
+        data.package_options
+      );
+      updateData.package_options = packageRows;
+      if (minPrice !== null) {
+        updateData.price = minPrice;
+        updateData.compare_at_price = null;
+      } else if (data.price !== undefined) {
+        updateData.price = data.price;
+        if (data.compare_at_price !== undefined) {
+          updateData.compare_at_price = data.compare_at_price || null;
+        }
+      }
+    } else {
+      if (data.price !== undefined) updateData.price = data.price;
+      if (data.compare_at_price !== undefined) {
+        updateData.compare_at_price = data.compare_at_price || null;
+      }
+    }
     if (data.featured_image !== undefined) updateData.featured_image = data.featured_image || null;
     if (data.images !== undefined) updateData.images = data.images || [];
     if (data.category !== undefined) updateData.category = data.category || null;

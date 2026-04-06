@@ -88,7 +88,8 @@ export default async function AdminOrdersPage() {
                         <div>
                           <div className="font-medium">{totalItems} артикула</div>
                           <div className="text-gray-500 dark:text-gray-400 text-xs">
-                            {products.length} различни продукта
+                            {products.length}{" "}
+                            {products.length === 1 ? "ред" : "реда"} (позиции)
                           </div>
                         </div>
                       </td>

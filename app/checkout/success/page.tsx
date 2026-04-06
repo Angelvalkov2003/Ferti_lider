@@ -35,6 +35,12 @@ export default async function CheckoutSuccessPage({
               name: p.name,
               price: Number(p.price),
               quantity: p.quantity,
+              variant_id: p.variant_id,
+              variant_label: p.variant_label ?? null,
+              line_total:
+                p.line_total != null
+                  ? Number(p.line_total)
+                  : Number(p.price) * Number(p.quantity),
             })),
             comment: order.comment || undefined,
           });

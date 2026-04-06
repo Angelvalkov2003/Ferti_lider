@@ -1,4 +1,5 @@
 import type { Product, Collection } from "lib/types";
+import { minOptionPrice, parsePackageOptionsFromDb } from "lib/package-options";
 import { cache } from "react";
 import { createServerClient } from "./server";
 
@@ -227,6 +228,12 @@ export async function getCollectionProducts(handle: string): Promise<Product[]> 
 }
 
 function transformProduct(data: any): Product {
+  const packageOptions = parsePackageOptionsFromDb(data.package_options);
+  const basePrice = Number(data.price) || 0;
+  const displayPrice = packageOptions.length
+    ? minOptionPrice(packageOptions, basePrice)
+    : basePrice;
+
   return {
     id: data.id,
     handle: data.handle,
@@ -238,8 +245,9 @@ function transformProduct(data: any): Product {
       altText: data.title,
     },
     images: data.images || [],
-    price: data.price,
-    compareAtPrice: data.compare_at_price,
+    price: displayPrice,
+    compareAtPrice: data.compare_at_price ?? undefined,
+    packageOptions,
     category: data.category,
     createdAt: data.created_at,
     updatedAt: data.updated_at,

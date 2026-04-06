@@ -1,6 +1,7 @@
 -- Final E-commerce Database Schema for Supabase
 -- Clean schema without carts/cart_items - cart is stored locally in browser
--- Run this in Supabase SQL Editor
+-- Run this whole file once in Supabase SQL Editor (fresh project / no data to keep).
+-- Includes: collections, products (+ package_options), product_images, orders.
 
 -- ⚠️ WARNING: This will DELETE all existing data!
 -- Make sure you have a backup if you have important data
@@ -39,6 +40,7 @@ CREATE TABLE products (
     featured_image JSONB,
     images JSONB[] DEFAULT '{}',
     category TEXT, -- This references collections by handle or can be collection title
+    package_options JSONB NOT NULL DEFAULT '[]'::jsonb, -- [{ id, label, price, compare_at_price? }, ...]
     available BOOLEAN DEFAULT true,
     position INTEGER NOT NULL DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -64,7 +66,7 @@ CREATE TABLE orders (
     customer_phone VARCHAR(50),
     customer_address TEXT NOT NULL,
     -- Order Information
-    products JSONB NOT NULL, -- Array of product snapshots: [{id, name, price, quantity}, ...]
+    products JSONB NOT NULL, -- [{id, name, price, quantity, variant_id, variant_label?, line_total}, ...]
     total_price NUMERIC(10, 2) NOT NULL CHECK (total_price >= 0),
     payment_method VARCHAR(20) NOT NULL DEFAULT 'cash_on_delivery' CHECK (payment_method IN ('cash_on_delivery', 'card')),
     status VARCHAR(20) NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'confirmed', 'shipped', 'paid', 'completed', 'canceled')),
@@ -121,6 +123,7 @@ COMMENT ON TABLE products IS 'Stores products available in the online store';
 COMMENT ON TABLE product_images IS 'Stores product images with ordering support. sort_order 0 = main image';
 COMMENT ON TABLE orders IS 'Stores complete order information including customer details. Products are stored as JSON snapshots. Cart is stored locally in browser (localStorage/cookies), not in database.';
 COMMENT ON COLUMN product_images.sort_order IS '0 = main image, 1+ = secondary images';
-COMMENT ON COLUMN orders.products IS 'JSON array containing product snapshot: {id, name, price, quantity}';
+COMMENT ON COLUMN orders.products IS 'JSON array: line per cart row; variant_id/variant_label for pack size; price=unit, line_total=price*qty';
 COMMENT ON COLUMN orders.status IS 'Order status: new, paid, shipped, completed, canceled';
 COMMENT ON COLUMN products.category IS 'Category/collection name - can reference collections table by handle or title';
+COMMENT ON COLUMN products.package_options IS 'JSON array: { id, label, price, compare_at_price? } for pack sizes; empty [] = single price from products.price';
