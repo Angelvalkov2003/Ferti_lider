@@ -100,7 +100,7 @@ export default async function ProductsPage({
                 href="/products"
                 className={`block rounded-lg px-4 py-2 transition-colors ${
                   !collection
-                    ? "bg-stone-400 text-white dark:bg-stone-600"
+                    ? "bg-brand-500 text-white dark:bg-brand-600"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 }`}
               >
@@ -113,7 +113,7 @@ export default async function ProductsPage({
                   href={`/products?collection=${col.handle}`}
                   className={`block rounded-lg px-4 py-2 transition-colors ${
                     collection === col.handle
-                      ? "bg-stone-400 text-white dark:bg-stone-600"
+                      ? "bg-brand-500 text-white dark:bg-brand-600"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                   }`}
                 >

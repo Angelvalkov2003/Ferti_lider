@@ -412,7 +412,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         />
       </div>
 
-      <div className="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/30 p-4 space-y-4">
+      <div className="rounded-lg border border-brand-200 dark:border-brand-900 bg-brand-50/50 dark:bg-brand-950/30 p-4 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div>
             <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -441,7 +441,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
                 ],
               }))
             }
-            className="text-sm px-3 py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+            className="text-sm px-3 py-1.5 rounded-md bg-brand-500 text-white hover:bg-brand-600"
           >
             + Добави вариант
           </button>
@@ -639,7 +639,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
           <button
             type="button"
             onClick={addImage}
-            className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+            className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400"
           >
             + Добави Снимка
           </button>
@@ -709,7 +709,7 @@ export function ProductForm({ product, collections }: ProductFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600 disabled:opacity-50"
         >
           {loading ? "Запазване..." : product ? "Обнови" : "Създай"}
         </button>

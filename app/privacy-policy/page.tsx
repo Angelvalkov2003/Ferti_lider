@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
         <div className="mb-6">
           <Link
             href="/checkout"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+            className="inline-flex items-center text-brand-600 dark:text-brand-400 hover:text-brand-800 dark:hover:text-brand-300 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Назад към потвърждаване на покупката
@@ -39,7 +39,7 @@ export default function PrivacyPolicyPage() {
             <p className="text-gray-700 dark:text-gray-300 mb-6">
               Настоящата Политика за поверителност описва как {siteName} (наричан по-долу "ние", "нас", "наш") 
               събира, използва, съхранява и защитава личните данни на потребителите на нашия уебсайт{" "}
-              <a href={siteUrl} className="text-blue-600 dark:text-blue-400 underline">{siteUrl}</a> 
+              <a href={siteUrl} className="text-brand-600 dark:text-brand-400 underline">{siteUrl}</a> 
               (наричан по-долу "Сайтът").
             </p>
             <p className="text-gray-700 dark:text-gray-300 mb-6">
@@ -340,7 +340,7 @@ export default function PrivacyPolicyPage() {
                 <strong>{siteName}</strong>
               </p>
               <p className="text-gray-700 dark:text-gray-300">
-                Уебсайт: <a href={siteUrl} className="text-blue-600 dark:text-blue-400 underline">{siteUrl}</a>
+                Уебсайт: <a href={siteUrl} className="text-brand-600 dark:text-brand-400 underline">{siteUrl}</a>
               </p>
               <p className="text-gray-700 dark:text-gray-300">
                 За контакт използвайте формата за контакт на нашия Сайт.
@@ -370,7 +370,7 @@ export default function PrivacyPolicyPage() {
                 Имейл: kzld@cpdp.bg
               </p>
               <p className="text-gray-700 dark:text-gray-300">
-                Уебсайт: <a href="https://www.cpdp.bg" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">www.cpdp.bg</a>
+                Уебсайт: <a href="https://www.cpdp.bg" target="_blank" rel="noopener noreferrer" className="text-brand-600 dark:text-brand-400 underline">www.cpdp.bg</a>
               </p>
             </div>
           </section>

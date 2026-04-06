@@ -36,7 +36,7 @@ export async function Navbar() {
               <Link
                 href="/products"
                 prefetch={true}
-                className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+                className="text-neutral-500 underline-offset-4 hover:text-brand-700 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
               >
                 Продукти
               </Link>
@@ -47,7 +47,7 @@ export async function Navbar() {
                   <Link
                     href={item.path}
                     prefetch={true}
-                    className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+                    className="text-neutral-500 underline-offset-4 hover:text-brand-700 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
                   >
                     {item.title}
                   </Link>
@@ -58,7 +58,7 @@ export async function Navbar() {
               <Link
                 href="/contact"
                 prefetch={true}
-                className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+                className="text-neutral-500 underline-offset-4 hover:text-brand-700 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
               >
                 Контакти
               </Link>

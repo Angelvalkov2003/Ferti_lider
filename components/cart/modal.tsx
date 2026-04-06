@@ -175,7 +175,7 @@ export default function CartModal() {
                   <Link
                     href="/checkout"
                     onClick={closeCart}
-                    className="block w-full rounded-full bg-blue-600 p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100"
+                    className="block w-full rounded-full bg-brand-500 p-3 text-center text-sm font-medium text-white opacity-90 hover:opacity-100"
                   >
                     Финализирай поръчката
                   </Link>

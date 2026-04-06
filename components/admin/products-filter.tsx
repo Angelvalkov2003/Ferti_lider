@@ -44,7 +44,7 @@ export function ProductsFilter({ collections }: ProductsFilterProps) {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-brand-500 focus:border-brand-500"
         >
           <option value="">Всички категории</option>
           {collections.map((collection) => (
@@ -62,7 +62,7 @@ export function ProductsFilter({ collections }: ProductsFilterProps) {
         <select
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-brand-500 focus:border-brand-500"
         >
           <option value="position">Позиция</option>
           <option value="price">Цена</option>
@@ -78,7 +78,7 @@ export function ProductsFilter({ collections }: ProductsFilterProps) {
         <select
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-brand-500 focus:border-brand-500"
         >
           <option value="asc">Възходящ</option>
           <option value="desc">Низходящ</option>

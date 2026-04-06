@@ -80,7 +80,7 @@ export function NavbarClient() {
               <div ref={dropdownRef}>
                 <button
                   onClick={() => setProductsDropdownOpen(!productsDropdownOpen)}
-                  className="flex items-center gap-1 text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+                  className="flex items-center gap-1 text-neutral-500 underline-offset-4 hover:text-brand-700 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
                 >
                   Продукти
                   <ChevronDownIcon className={`h-4 w-4 transition-transform ${productsDropdownOpen ? "rotate-180" : ""}`} />
@@ -115,12 +115,20 @@ export function NavbarClient() {
               </div>
             </li>
 
-            {/* Contact Link */}
+            <li>
+              <Link
+                href="/za-nas"
+                prefetch={true}
+                className="text-neutral-500 underline-offset-4 hover:text-brand-700 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
+              >
+                За нас
+              </Link>
+            </li>
             <li>
               <Link
                 href="/contact"
                 prefetch={true}
-                className="text-neutral-500 underline-offset-4 hover:text-black hover:underline dark:text-neutral-400 dark:hover:text-neutral-300"
+                className="text-neutral-500 underline-offset-4 hover:text-brand-700 hover:underline dark:text-neutral-400 dark:hover:text-brand-400"
               >
                 Контакти
               </Link>

@@ -25,7 +25,7 @@ export function ProductPurchase({ product }: { product: Product }) {
     <>
       <div className="mb-6 flex flex-col border-b pb-6 dark:border-neutral-700">
         <h1 className="mb-2 text-5xl font-medium">{product.title}</h1>
-        <div className="mr-auto w-auto rounded-full bg-stone-200 dark:bg-stone-700 p-2 text-sm text-stone-900 dark:text-stone-100">
+        <div className="mr-auto w-auto rounded-full bg-brand-100 dark:bg-brand-950/60 p-2 text-sm text-neutral-900 dark:text-white">
           {selected.compareAtPrice && selected.compareAtPrice > selected.price ? (
             <div className="flex items-center gap-2">
               <span className="text-red-600 dark:text-red-400 line-through">
@@ -56,8 +56,8 @@ export function ProductPurchase({ product }: { product: Product }) {
                 className={clsx(
                   "rounded-full border px-4 py-2 text-sm transition-colors",
                   selectedId === v.id
-                    ? "border-blue-600 bg-blue-600 text-white"
-                    : "border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:hover:border-blue-500"
+                    ? "border-brand-600 bg-brand-500 text-white"
+                    : "border-neutral-300 bg-white text-neutral-900 hover:border-brand-400 dark:border-neutral-600 dark:bg-neutral-900 dark:text-white dark:hover:border-brand-500"
                 )}
               >
                 <span className="font-medium">{v.title}</span>

@@ -18,7 +18,7 @@ export default async function AdminCollectionsPage() {
         </div>
         <Link
           href="/admin/collections/new"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          className="px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600"
         >
           + Нова Колекция
         </Link>
@@ -72,7 +72,7 @@ export default async function AdminCollectionsPage() {
                       <div className="flex gap-2">
                         <Link
                           href={`/admin/collections/${collection.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          className="text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300"
                         >
                           Редактирай
                         </Link>

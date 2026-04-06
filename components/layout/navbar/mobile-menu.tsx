@@ -143,6 +143,11 @@ export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
                     )}
                   </li>
                   <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
+                    <Link href="/za-nas" prefetch={true} onClick={closeMobileMenu}>
+                      За нас
+                    </Link>
+                  </li>
+                  <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">
                     <Link
                       href="/contact"
                       prefetch={true}

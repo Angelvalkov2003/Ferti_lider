@@ -1,11 +1,10 @@
 "use client";
 
+import { ContactInfoCards } from "components/contact-info-cards";
+import { GoogleMapEmbed } from "components/google-map-embed";
 import { useState } from "react";
-import { EnvelopeIcon, PhoneIcon } from "@heroicons/react/24/outline";
 
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME || process.env.SITE_NAME || "My Ecommerce Store";
-const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL || process.env.CONTACT_EMAIL || "contact@example.com";
-const contactPhone = process.env.NEXT_PUBLIC_CONTACT_PHONE || "+359 888 888 888";
 const facebookUrl = process.env.NEXT_PUBLIC_FACEBOOK_URL || "#";
 const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM_URL || "#";
 
@@ -72,58 +71,31 @@ export default function ContactPage() {
           Свържете се с нас
         </h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
           {/* Contact Information */}
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-              Контактна информация
-            </h2>
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+                Контактна информация
+              </h2>
+              <ContactInfoCards />
+            </div>
+
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                Локация
+              </h2>
+              <GoogleMapEmbed />
+            </div>
 
             <div className="space-y-4">
-              {/* Email */}
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                    <EnvelopeIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Имейл
-                  </h3>
-                  <a
-                    href={`mailto:${contactEmail}`}
-                    className="text-base text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
-                  >
-                    {contactEmail}
-                  </a>
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
-                    <PhoneIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                    Телефон
-                  </h3>
-                  <a
-                    href={`tel:${contactPhone.replace(/\s/g, "")}`}
-                    className="text-base text-gray-900 dark:text-white hover:text-green-600 dark:hover:text-green-400"
-                  >
-                    {contactPhone}
-                  </a>
-                </div>
-              </div>
-
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Социални мрежи
+              </h2>
               {/* Facebook */}
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600 dark:bg-blue-700">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-brand-500 dark:bg-brand-600">
                     <svg
                       className="h-6 w-6 text-white"
                       fill="currentColor"
@@ -146,7 +118,7 @@ export default function ContactPage() {
                     href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-base text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
+                    className="text-base text-gray-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-400"
                   >
                     {facebookUrl !== "#" ? facebookUrl : "Facebook страница"}
                   </a>
@@ -222,7 +194,7 @@ export default function ContactPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
@@ -241,7 +213,7 @@ export default function ContactPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
@@ -260,7 +232,7 @@ export default function ContactPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
@@ -279,7 +251,7 @@ export default function ContactPage() {
                   onChange={(e) =>
                     setFormData({ ...formData, message: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 />
               </div>
 
@@ -295,7 +267,7 @@ export default function ContactPage() {
                         privacy_policy_accepted: e.target.checked,
                       })
                     }
-                    className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="mt-1 h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
                     Съгласен съм с{" "}
@@ -303,7 +275,7 @@ export default function ContactPage() {
                       href="/privacy-policy"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                      className="text-brand-600 dark:text-brand-400 underline hover:text-brand-800 dark:hover:text-brand-300"
                     >
                       Политиката за поверителност
                     </a>{" "}
@@ -315,7 +287,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting || !formData.privacy_policy_accepted}
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-brand-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? "Изпращане..." : "Изпрати съобщение"}
               </button>

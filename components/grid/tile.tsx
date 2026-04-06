@@ -22,10 +22,10 @@ export const GridTileImage = memo(function GridTileImage({
   return (
     <div
       className={clsx(
-        "group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-stone-400 dark:bg-black dark:hover:border-stone-600",
+        "group flex h-full w-full items-center justify-center overflow-hidden rounded-lg border bg-white hover:border-brand-400 dark:bg-black dark:hover:border-brand-700",
         {
           relative: label,
-          "border-2 border-stone-400 dark:border-stone-600": active,
+          "border-2 border-brand-500 dark:border-brand-600": active,
           "border-neutral-200 dark:border-neutral-800": !active,
         },
       )}

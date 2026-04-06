@@ -30,7 +30,7 @@ export default function CheckoutCancelPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/"
-            className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 transition-colors"
+            className="rounded-lg bg-brand-500 px-6 py-3 text-white hover:bg-brand-600 transition-colors"
           >
             Към началната страница
           </Link>

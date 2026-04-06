@@ -91,7 +91,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, customer_name: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -111,7 +111,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, customer_email: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -130,7 +130,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, customer_phone: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -150,7 +150,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, customer_address: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -172,7 +172,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, total_price: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -194,7 +194,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
               payment_method: e.target.value as "cash_on_delivery" | "card",
             })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         >
           <option value="cash_on_delivery">Наложен платеж</option>
@@ -216,7 +216,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, status: e.target.value as OrderStatus })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         >
           <option value="new">Нова</option>
@@ -243,7 +243,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, created_at: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -262,7 +262,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
           onChange={(e) =>
             setFormData({ ...formData, comment: e.target.value })
           }
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:text-white"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-brand-500 focus:border-brand-500 dark:bg-gray-700 dark:text-white"
           disabled={loading}
         />
       </div>
@@ -270,7 +270,7 @@ export function OrderEditForm({ order }: OrderEditFormProps) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Запазване..." : "Запази промените"}
       </button>

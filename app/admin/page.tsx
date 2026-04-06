@@ -50,7 +50,7 @@ export default async function AdminDashboard() {
           <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">
             Нови Поръчки
           </h3>
-          <p className="mt-2 text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+          <p className="mt-2 text-3xl font-bold text-brand-600 dark:text-brand-400">
             {stats.newOrders}
           </p>
         </div>
@@ -125,7 +125,7 @@ export default async function AdminDashboard() {
                         order.status === "new"
                           ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                           : order.status === "paid"
-                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                          ? "bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-200"
                           : order.status === "shipped"
                           ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
                           : order.status === "completed"
@@ -142,7 +142,7 @@ export default async function AdminDashboard() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link
                       href={`/admin/orders/${order.id}`}
-                      className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                      className="text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300"
                     >
                       Виж
                     </Link>

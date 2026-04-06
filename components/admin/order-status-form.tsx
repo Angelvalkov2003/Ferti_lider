@@ -48,7 +48,7 @@ export function OrderStatusForm({
         id="status"
         value={status}
         onChange={(e) => setStatus(e.target.value as OrderStatus)}
-        className="block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white text-sm"
+        className="block w-full rounded-md border-gray-300 dark:border-gray-700 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:bg-gray-700 dark:text-white text-sm"
         disabled={loading}
       >
         <option value="new">Нова</option>
@@ -61,7 +61,7 @@ export function OrderStatusForm({
       <button
         type="submit"
         disabled={loading || status === currentStatus}
-        className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        className="w-full px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
       >
         {loading ? "Запазване..." : "Запази статус"}
       </button>

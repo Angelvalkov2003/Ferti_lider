@@ -107,11 +107,11 @@ export default async function AdminOrdersPage() {
                             order.status === "new"
                               ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                               : order.status === "confirmed"
-                              ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                              ? "bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-200"
                               : order.status === "shipped"
                               ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
                               : order.status === "paid"
-                              ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200"
+                              ? "bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-200"
                               : order.status === "completed"
                               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                               : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
@@ -142,7 +142,7 @@ export default async function AdminOrdersPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          className="text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300"
                         >
                           Виж детайли
                         </Link>

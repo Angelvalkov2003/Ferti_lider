@@ -88,7 +88,7 @@ export function ImageUploadButton({
       />
       <label
         htmlFor={inputId}
-        className={`inline-block px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+        className={`inline-block px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
       >
         {uploading ? "Качване..." : label}
       </label>

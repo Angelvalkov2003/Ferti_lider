@@ -71,13 +71,13 @@ export function SortFilter() {
               onClick={() => handleSortChange(option.value)}
               className={`w-full text-left px-4 py-3 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
                 currentSort === option.value
-                  ? "bg-stone-50 dark:bg-stone-900/30 text-stone-900 dark:text-stone-100"
+                  ? "bg-brand-50 dark:bg-brand-950/40 text-neutral-900 dark:text-white"
                   : "text-gray-700 dark:text-gray-300"
               }`}
             >
               <span className="text-sm font-medium">{option.label}</span>
               {currentSort === option.value && (
-                <CheckIcon className="h-5 w-5 text-stone-600 dark:text-stone-400" />
+                <CheckIcon className="h-5 w-5 text-brand-600 dark:text-brand-400" />
               )}
             </button>
           ))}

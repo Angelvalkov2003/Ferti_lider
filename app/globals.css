@@ -3,6 +3,21 @@
 @plugin "@tailwindcss/container-queries";
 @plugin "@tailwindcss/typography";
 
+/* Тема: зелено #71a826 + черно/бяло */
+@theme {
+  --color-brand-50: #f6faf0;
+  --color-brand-100: #e8f4d5;
+  --color-brand-200: #d1e8af;
+  --color-brand-300: #aed678;
+  --color-brand-400: #8bc245;
+  --color-brand-500: #71a826;
+  --color-brand-600: #5a8719;
+  --color-brand-700: #476815;
+  --color-brand-800: #3a5414;
+  --color-brand-900: #314512;
+  --color-brand-950: #192609;
+}
+
 @layer base {
   *,
   ::after,
@@ -33,5 +48,5 @@
 a,
 input,
 button {
-  @apply focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-50 dark:focus-visible:ring-neutral-600 dark:focus-visible:ring-offset-neutral-900;
+  @apply focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-brand-400/50 dark:focus-visible:ring-offset-neutral-950;
 }

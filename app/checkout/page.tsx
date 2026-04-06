@@ -35,7 +35,7 @@ export default function CheckoutPage() {
           </p>
           <button
             onClick={() => router.push("/search")}
-            className="rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700 transition-colors"
+            className="rounded-lg bg-brand-500 px-6 py-3 text-white hover:bg-brand-600 transition-colors"
           >
             Към продуктите
           </button>
@@ -152,7 +152,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, customer_name: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -171,7 +171,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, customer_email: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -189,7 +189,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, customer_phone: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -208,7 +208,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, customer_address: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -226,7 +226,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, comment: e.target.value })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   />
                 </div>
 
@@ -297,7 +297,7 @@ export default function CheckoutPage() {
                           privacy_policy_accepted: e.target.checked,
                         })
                       }
-                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      className="mt-1 h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
                     />
                     <span className="text-sm text-gray-700 dark:text-gray-300">
                       Съгласен съм с{" "}
@@ -305,7 +305,7 @@ export default function CheckoutPage() {
                         href="/privacy-policy"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
+                        className="text-brand-600 dark:text-brand-400 underline hover:text-brand-800 dark:hover:text-brand-300"
                       >
                         Политиката за поверителност
                       </a>{" "}
@@ -317,7 +317,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || !formData.privacy_policy_accepted}
-                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="w-full bg-brand-500 text-white py-3 px-6 rounded-lg font-medium hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                 >
                   {isSubmitting ? (
                     <LoadingDots className="bg-white" />
@@ -384,7 +384,7 @@ export default function CheckoutPage() {
                   <Price
                     amount={cart.total.toString()}
                     currencyCode={cart.currency}
-                    className="text-blue-600 dark:text-blue-400"
+                    className="text-brand-600 dark:text-brand-400"
                   />
                 </div>
                 <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">

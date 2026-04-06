@@ -41,7 +41,7 @@ export default async function EditCollectionPage({
       <div className="mb-6">
         <Link
           href="/admin/collections"
-          className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium"
+          className="text-brand-600 hover:text-brand-800 dark:text-brand-400 dark:hover:text-brand-300 text-sm font-medium"
         >
           ← Назад към колекциите
         </Link>

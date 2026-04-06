@@ -4,7 +4,9 @@ import { Gallery } from "components/product/gallery";
 import { BackButton } from "components/product/back-button";
 import { ProductDescription } from "components/product/product-description";
 import { getProduct, getProducts } from "lib/supabase/products";
+import { SITE_LOGO_PATH } from "lib/site-brand";
 import type { Image } from "lib/types";
+import { baseUrl } from "lib/utils";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -18,6 +20,19 @@ export async function generateMetadata(props: {
   if (!product) return notFound();
 
   const { url, width, height, altText: alt } = product.featuredImage || {};
+  const siteName = process.env.SITE_NAME || "Ferti Lider";
+  const logoAbsolute = new URL(SITE_LOGO_PATH, baseUrl).toString();
+
+  const productImages = url
+    ? [
+        {
+          url,
+          width,
+          height,
+          alt: alt || product.title,
+        },
+      ]
+    : [];
 
   return {
     title: product.title,
@@ -26,18 +41,16 @@ export async function generateMetadata(props: {
       index: product.available,
       follow: product.available,
     },
-    openGraph: url
-      ? {
-          images: [
-            {
-              url,
-              width,
-              height,
-              alt: alt || product.title,
-            },
-          ],
-        }
-      : null,
+    openGraph: {
+      images: [
+        ...productImages,
+        { url: logoAbsolute, alt: siteName },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [...productImages.map((i) => i.url), logoAbsolute],
+    },
   };
 }
 

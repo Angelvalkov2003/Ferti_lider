@@ -29,7 +29,7 @@ const Label = ({
         <h3 className="mr-2 line-clamp-2 grow pl-2 leading-none tracking-tight min-w-0">
           {title}
         </h3>
-        <div className="flex-none rounded-full bg-stone-200 dark:bg-stone-700 px-1.5 py-0.5 text-stone-900 dark:text-stone-100 text-[10px]">
+        <div className="flex-none rounded-full bg-brand-100 dark:bg-brand-950/70 px-1.5 py-0.5 text-neutral-900 dark:text-white text-[10px]">
           {hasComparePrice ? (
             <div className="flex items-center gap-0.5 flex-wrap">
               <span className="text-red-600 dark:text-red-400 line-through text-[9px] whitespace-nowrap">

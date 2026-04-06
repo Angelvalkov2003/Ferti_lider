@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Bars3Icon, XMarkIcon, HomeIcon } from "@heroicons/react/24/outline";
 
@@ -40,7 +41,7 @@ export function AdminNavbar() {
   const getLinkClassName = (path: string) => {
     const baseClasses = "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium";
     if (isActive(path)) {
-      return `${baseClasses} border-indigo-500 text-gray-900 dark:text-white`;
+      return `${baseClasses} border-brand-500 text-gray-900 dark:text-white`;
     }
     return `${baseClasses} border-transparent text-gray-500 dark:text-gray-400 hover:border-gray-300 hover:text-gray-700 dark:hover:text-gray-300`;
   };
@@ -48,7 +49,7 @@ export function AdminNavbar() {
   const getMobileLinkClassName = (path: string) => {
     const baseClasses = "block px-3 py-2 text-base font-medium rounded-md";
     if (isActive(path)) {
-      return `${baseClasses} bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200`;
+      return `${baseClasses} bg-brand-50 dark:bg-brand-950 text-brand-800 dark:text-brand-200`;
     }
     return `${baseClasses} text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700`;
   };
@@ -61,9 +62,18 @@ export function AdminNavbar() {
             <div className="flex-shrink-0 flex items-center">
               <Link
                 href="/admin"
-                className="text-xl font-bold text-gray-900 dark:text-white"
+                className="flex items-center gap-2 text-xl font-bold text-gray-900 dark:text-white"
               >
-                Админ Панел
+                <span className="relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
+                  <Image
+                    src="/logo.png"
+                    alt=""
+                    fill
+                    className="object-contain p-0.5"
+                    sizes="36px"
+                  />
+                </span>
+                Админ панел
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -101,7 +111,7 @@ export function AdminNavbar() {
             {/* Mobile menu button */}
             <button
               type="button"
-              className="sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="sm:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >

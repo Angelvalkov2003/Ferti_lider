@@ -107,7 +107,7 @@ export function FilterModal({
                   value={minPrice}
                   onChange={(e) => setMinPrice(e.target.value)}
                   placeholder="0.00"
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
                 />
               </div>
               <div className="flex-1">
@@ -121,7 +121,7 @@ export function FilterModal({
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(e.target.value)}
                   placeholder="1000.00"
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
                 />
               </div>
             </div>
@@ -142,7 +142,7 @@ export function FilterModal({
                     type="checkbox"
                     checked={selectedCategories.includes(collection.handle)}
                     onChange={() => handleCategoryToggle(collection.handle)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500"
                   />
                   <span className="text-sm text-gray-700 dark:text-gray-300">
                     {collection.title}
@@ -159,7 +159,7 @@ export function FilterModal({
                 type="checkbox"
                 checked={onSaleOnly}
                 onChange={(e) => setOnSaleOnly(e.target.checked)}
-                className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                className="h-4 w-4 text-brand-600 rounded border-gray-300 focus:ring-brand-500"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Само продукти на намаление
@@ -171,7 +171,7 @@ export function FilterModal({
           <div className="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={handleApply}
-              className="flex-1 px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              className="flex-1 px-6 py-2 text-sm font-medium text-white bg-brand-500 rounded-md hover:bg-brand-600 transition-colors"
             >
               Приложи
             </button>
