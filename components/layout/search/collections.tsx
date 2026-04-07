@@ -1,16 +1,23 @@
 import clsx from "clsx";
 import { Suspense } from "react";
 
+import { getChildCollections, getRootCollections } from "lib/collection-hierarchy";
 import { getCollections } from "lib/supabase/products";
 import FilterList from "./filter";
 
 async function CollectionList() {
   const collections = await getCollections();
-  // Transform Collection[] to PathFilterItem[] format
-  const list = collections.map((collection) => ({
-    title: collection.title,
-    path: `/search/${collection.handle}`,
-  }));
+  const roots = getRootCollections(collections);
+  const list: { title: string; path: string }[] = [];
+  for (const r of roots) {
+    list.push({ title: r.title, path: `/search/${r.handle}` });
+    for (const ch of getChildCollections(r.id, collections)) {
+      list.push({
+        title: `\u2014 ${ch.title}`,
+        path: `/search/${ch.handle}`,
+      });
+    }
+  }
   return <FilterList list={list} title="Колекции" />;
 }
 

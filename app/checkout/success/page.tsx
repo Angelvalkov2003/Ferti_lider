@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DELIVERY_CARRIER_NOTICE } from "lib/site-contact";
 import { getOrderById } from "lib/supabase/orders";
 import { sendNewOrderNotification } from "lib/email";
 import { ClearCartOnSuccess } from "components/cart/clear-cart-on-success";
@@ -110,6 +111,9 @@ export default async function CheckoutSuccessPage({
             )}
           </div>
         )}
+        <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+          {DELIVERY_CARRIER_NOTICE}
+        </p>
         <p className="mb-8 text-lg text-gray-600 dark:text-gray-400">
           Благодарим ви за поръчката. Ще получите потвърждение по имейл скоро.
         </p>

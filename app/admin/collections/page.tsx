@@ -4,6 +4,9 @@ import { DeleteCollectionButton } from "components/admin/delete-collection-butto
 
 export default async function AdminCollectionsPage() {
   const collections = await getAllCollectionsForAdmin();
+  const titleById = new Map(
+    (collections as { id: string; title: string }[]).map((c) => [c.id, c.title]),
+  );
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -39,6 +42,9 @@ export default async function AdminCollectionsPage() {
                   Позиция
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Родител
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Действия
                 </th>
               </tr>
@@ -46,7 +52,7 @@ export default async function AdminCollectionsPage() {
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {collections.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                     Няма колекции. Създай първата колекция!
                   </td>
                 </tr>
@@ -66,6 +72,13 @@ export default async function AdminCollectionsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 dark:text-white font-medium">
                         {collection.position ?? 0}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {collection.parent_id
+                          ? titleById.get(collection.parent_id) || "—"
+                          : "Главна"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

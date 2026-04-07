@@ -90,6 +90,8 @@ export type Collection = {
   handle: string;
   title: string;
   description?: string;
+  /** null = главна категория */
+  parentId: string | null;
   updatedAt: string;
 };
 

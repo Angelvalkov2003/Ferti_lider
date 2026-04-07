@@ -2,6 +2,7 @@ import { getProducts, getCollections } from "lib/supabase/products";
 import { Metadata } from "next";
 import Grid from "components/grid";
 import ProductGridItems from "components/layout/product-grid-items";
+import { ProductsCategorySidebar } from "components/products/products-category-sidebar";
 import { SortFilter } from "components/products/sort-filter";
 import { FilterButton } from "components/products/filter-button";
 import { FilterModal } from "components/products/filter-modal";
@@ -42,7 +43,6 @@ export default async function ProductsPage({
     }),
     getCollections(),
   ]);
-
   const currentFilters = {
     minPrice,
     maxPrice,
@@ -93,35 +93,7 @@ export default async function ProductsPage({
       {/* Collections Menu - Right Side */}
       <div className="order-last w-full flex-none md:order-last md:w-[250px]">
         <div className="sticky top-4">
-          <h2 className="mb-4 text-lg font-semibold">Категории</h2>
-          <ul className="space-y-2">
-            <li>
-              <a
-                href="/products"
-                className={`block rounded-lg px-4 py-2 transition-colors ${
-                  !collection
-                    ? "bg-brand-500 text-white dark:bg-brand-600"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                Всичко
-              </a>
-            </li>
-            {collections.map((col) => (
-              <li key={col.id}>
-                <a
-                  href={`/products?collection=${col.handle}`}
-                  className={`block rounded-lg px-4 py-2 transition-colors ${
-                    collection === col.handle
-                      ? "bg-brand-500 text-white dark:bg-brand-600"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  {col.title}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <ProductsCategorySidebar collections={collections} activeHandle={collection} />
         </div>
       </div>
     </div>

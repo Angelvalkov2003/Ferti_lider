@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createProductAction, updateProductAction } from "app/admin/products/actions";
+import { leafCategorySelectOptions } from "lib/collection-hierarchy";
 import { toast } from "sonner";
-import type { Image } from "lib/types";
+import type { Collection, Image } from "lib/types";
 import type { PackageOptionRow } from "lib/supabase/admin-products";
 import { ImageUploadButton } from "./image-upload-button";
 
@@ -51,6 +52,37 @@ interface ProductFormProps {
 export function ProductForm({ product, collections }: ProductFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  const collectionsMapped: Collection[] = useMemo(
+    () =>
+      collections.map(
+        (c: {
+          id: string;
+          handle: string;
+          title: string;
+          parent_id?: string | null;
+          updated_at?: string;
+        }) => ({
+          id: c.id,
+          handle: c.handle,
+          title: c.title,
+          parentId: c.parent_id ?? null,
+          updatedAt: c.updated_at || "",
+        }),
+      ),
+    [collections],
+  );
+
+  const leafOptions = useMemo(
+    () => leafCategorySelectOptions(collectionsMapped),
+    [collectionsMapped],
+  );
+
+  const leafHandles = useMemo(
+    () => new Set(leafOptions.map((o) => o.handle)),
+    [leafOptions],
+  );
+
   const [uploadingImages, setUploadingImages] = useState<Set<string>>(new Set());
   const [handleError, setHandleError] = useState<string | null>(null);
   const [formData, setFormData] = useState<ProductFormData>({
@@ -66,6 +98,10 @@ export function ProductForm({ product, collections }: ProductFormProps) {
     images: product?.images || [],
     packageOptions: mapDbPackageOptions(product),
   });
+
+  const currentCategoryInvalid = Boolean(
+    formData.category && !leafHandles.has(formData.category),
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,6 +151,34 @@ export function ProductForm({ product, collections }: ProductFormProps) {
       if (incompleteVariant) {
         toast.error(
           "Попълни етикет и валидна цена за всеки започнат вариант, или го премахни."
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (collectionsMapped.length === 0) {
+        toast.error("Няма категории. Създай поне една категория първо.");
+        setLoading(false);
+        return;
+      }
+
+      if (leafOptions.length === 0) {
+        toast.error(
+          "Няма крайни категории. Създай категория без подкатегории или премести продуктите в по-дълбоко ниво.",
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (!formData.category?.trim()) {
+        toast.error("Избери категория.");
+        setLoading(false);
+        return;
+      }
+
+      if (!leafHandles.has(formData.category)) {
+        toast.error(
+          "Продуктът може да е само в крайна категория (без подкатегории). Избери по-конкретна категория.",
         );
         setLoading(false);
         return;
@@ -569,20 +633,45 @@ export function ProductForm({ product, collections }: ProductFormProps) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Категория
+            Категория <span className="text-red-600">*</span>
           </label>
           <select
+            required={leafOptions.length > 0 && !currentCategoryInvalid}
             value={formData.category}
             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
+              currentCategoryInvalid
+                ? "border-amber-500 dark:border-amber-500"
+                : "border-gray-300 dark:border-gray-700"
+            }`}
           >
-            <option value="">Избери категория</option>
-            {collections.map((collection) => (
-              <option key={collection.id} value={collection.handle}>
-                {collection.title}
+            <option value="">
+              {leafOptions.length === 0 && collectionsMapped.length > 0
+                ? "— Няма крайни категории —"
+                : "Избери крайна категория"}
+            </option>
+            {currentCategoryInvalid ? (
+              <option value={formData.category} disabled>
+                (не е крайна){" "}
+                {collectionsMapped.find((c) => c.handle === formData.category)?.title ??
+                  formData.category}
+              </option>
+            ) : null}
+            {leafOptions.map((opt) => (
+              <option key={opt.handle} value={opt.handle}>
+                {opt.label}
               </option>
             ))}
           </select>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Продуктите се закачат само на категории без подкатегории (крайно ниво в дървото).
+          </p>
+          {currentCategoryInvalid ? (
+            <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
+              Текущата стойност е родителска категория. Избери подкатегория, в която реално стои
+              продуктът.
+            </p>
+          ) : null}
         </div>
 
         <div>

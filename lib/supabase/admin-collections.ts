@@ -1,3 +1,4 @@
+import { getDescendantIds } from "lib/collection-hierarchy";
 import { createServerClient } from "./server";
 
 // Helper to check if error is React.postpone()
@@ -15,10 +16,57 @@ export interface CreateCollectionData {
   title: string;
   description?: string;
   position?: number;
+  /** null / undefined = главна категория */
+  parentId?: string | null;
 }
 
 export interface UpdateCollectionData extends Partial<CreateCollectionData> {
   id: string;
+}
+
+async function assertValidParentId(
+  supabase: Awaited<ReturnType<typeof createServerClient>>,
+  parentId: string | null,
+  editingCollectionId?: string,
+) {
+  if (parentId == null || parentId === "") return;
+
+  const { data: parentRow } = await supabase
+    .from("collections")
+    .select("id")
+    .eq("id", parentId)
+    .maybeSingle();
+  if (!parentRow) {
+    throw new Error("Избраната родителска категория не съществува.");
+  }
+
+  if (editingCollectionId && parentId === editingCollectionId) {
+    throw new Error(
+      "Категория не може да бъде родител на самата себе си.",
+    );
+  }
+
+  const { data: rows, error } = await supabase
+    .from("collections")
+    .select("id, parent_id");
+
+  if (error || !rows?.length) {
+    return;
+  }
+
+  const flat = rows.map((r: { id: string; parent_id: string | null }) => ({
+    id: r.id,
+    parentId: r.parent_id ?? null,
+  }));
+
+  if (editingCollectionId) {
+    const descendants = getDescendantIds(editingCollectionId, flat);
+    if (parentId === editingCollectionId || descendants.has(parentId)) {
+      throw new Error(
+        "Невалиден родител: не може да избереш себе си или подкатегория като родител.",
+      );
+    }
+  }
 }
 
 /**
@@ -137,11 +185,15 @@ export async function createCollection(data: CreateCollectionData) {
     if (handleExists) {
       throw new Error(`Slug "${trimmedHandle}" вече е зает. Моля, изберете друг slug.`);
     }
-    
-    const collectionData = {
+
+    await assertValidParentId(supabase, data.parentId ?? null, undefined);
+
+    const collectionData: Record<string, unknown> = {
       handle: trimmedHandle,
       title: data.title,
+      description: data.description?.trim() || null,
       position: data.position ?? 0,
+      parent_id: data.parentId && data.parentId !== "" ? data.parentId : null,
       updated_at: new Date().toISOString(),
     };
 
@@ -177,8 +229,16 @@ export async function createCollection(data: CreateCollectionData) {
 export async function updateCollection(data: UpdateCollectionData) {
   try {
     const supabase = await createServerClient();
+
+    if (data.parentId !== undefined) {
+      await assertValidParentId(
+        supabase,
+        data.parentId && data.parentId !== "" ? data.parentId : null,
+        data.id,
+      );
+    }
     
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
 
@@ -196,6 +256,10 @@ export async function updateCollection(data: UpdateCollectionData) {
     if (data.title !== undefined) updateData.title = data.title;
     if (data.description !== undefined) updateData.description = data.description || null;
     if (data.position !== undefined) updateData.position = data.position;
+    if (data.parentId !== undefined) {
+      updateData.parent_id =
+        data.parentId && data.parentId !== "" ? data.parentId : null;
+    }
 
     const { data: collection, error } = await supabase
       .from("collections")

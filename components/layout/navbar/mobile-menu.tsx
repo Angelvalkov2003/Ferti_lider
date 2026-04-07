@@ -6,18 +6,14 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Fragment, Suspense, useEffect, useState } from "react";
 
 import { Bars3Icon, XMarkIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { CategoryNavTree } from "components/layout/category-nav-tree";
 import Search, { SearchSkeleton } from "./search";
+import type { Collection } from "lib/types";
 
 type MenuItem = {
   title: string;
   path: string;
 };
-
-interface Collection {
-  id: string;
-  handle: string;
-  title: string;
-}
 
 export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
   const pathname = usePathname();
@@ -115,31 +111,19 @@ export default function MobileMenu({ menu }: { menu: MenuItem[] }) {
                       />
                     </button>
                     {productsSubmenuOpen && (
-                      <ul className="ml-4 mt-2 space-y-2 border-l-2 border-gray-200 dark:border-gray-700 pl-4">
-                        <li>
-                          <Link
-                            href="/products"
-                            prefetch={true}
-                            onClick={closeMobileMenu}
-                            className="block py-2 text-lg text-gray-700 transition-colors hover:text-black dark:text-gray-300 dark:hover:text-white"
-                          >
-                            Всички
-                          </Link>
-                        </li>
-                        {!loading &&
-                          collections.map((collection) => (
-                            <li key={collection.id}>
-                              <Link
-                                href={`/products?collection=${collection.handle}`}
-                                prefetch={true}
-                                onClick={closeMobileMenu}
-                                className="block py-2 text-lg text-gray-700 transition-colors hover:text-black dark:text-gray-300 dark:hover:text-white"
-                              >
-                                {collection.title}
-                              </Link>
-                            </li>
-                          ))}
-                      </ul>
+                      <div className="ml-4 mt-2 border-l-2 border-gray-200 pl-4 dark:border-gray-700">
+                        {loading ? (
+                          <p className="py-2 text-sm text-gray-500 dark:text-gray-400">Зареждане…</p>
+                        ) : (
+                          <CategoryNavTree
+                            collections={collections}
+                            variant="mobile"
+                            activeHandle={searchParams.get("collection")}
+                            onNavigate={closeMobileMenu}
+                            includeAllProductsLink={true}
+                          />
+                        )}
+                      </div>
                     )}
                   </li>
                   <li className="py-2 text-xl text-black transition-colors hover:text-neutral-500 dark:text-white">

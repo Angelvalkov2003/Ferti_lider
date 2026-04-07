@@ -65,3 +65,12 @@ const DEFAULT_FACEBOOK_URL = "https://www.facebook.com/fertiliderltd/";
 export function getFacebookUrl(): string {
   return envOr(DEFAULT_FACEBOOK_URL, "NEXT_PUBLIC_FACEBOOK_URL");
 }
+
+/** Куриер за доставки (един източник на истина за целия сайт) */
+export const DELIVERY_CARRIER_NAME = "Еконт";
+
+/** Праг в EUR, под който доставката е за сметка на клиента */
+export const DELIVERY_CLIENT_PAYS_BELOW_EUR = 300;
+
+/** Кратък текст за количка, чек-аут, имейли */
+export const DELIVERY_CARRIER_NOTICE = `Доставката се извършва чрез Еконт. При поръчки до ${DELIVERY_CLIENT_PAYS_BELOW_EUR} € разходите за доставка се поемат от клиента.`;

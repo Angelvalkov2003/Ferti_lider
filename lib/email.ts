@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { SITE_LOGO_PATH } from "lib/site-brand";
+import { DELIVERY_CARRIER_NOTICE } from "lib/site-contact";
 
 if (!process.env.RESEND_API_KEY) {
   throw new Error("RESEND_API_KEY is not set");
@@ -158,6 +159,7 @@ export async function sendNewOrderNotification(data: OrderNotificationData) {
         ${data.customerPhone ? `<p><strong>Phone:</strong> ${escapeHtml(data.customerPhone)}</p>` : ""}
         <p><strong>Address:</strong> ${escapeHtml(data.customerAddress).replace(/\n/g, "<br>")}</p>
         <p><strong>Payment Method:</strong> ${data.paymentMethod === "cash_on_delivery" ? "Наложен платеж" : "Плащане с карта"}</p>
+        <p style="font-size:13px;color:#444">${escapeHtml(DELIVERY_CARRIER_NOTICE)}</p>
         
         <h3>Order Items</h3>
         <ul>
@@ -182,6 +184,7 @@ Email: ${data.customerEmail}
 ${data.customerPhone ? `Phone: ${data.customerPhone}\n` : ""}
 Address: ${data.customerAddress}
 Payment Method: ${data.paymentMethod === "cash_on_delivery" ? "Наложен платеж" : "Плащане с карта"}
+${DELIVERY_CARRIER_NOTICE}
 
 Order Items:
 ${productsList}

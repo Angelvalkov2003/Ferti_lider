@@ -1,31 +1,21 @@
 import Footer from "components/layout/footer";
-import Image from "next/image";
+import { HomeLanding } from "components/home/home-landing";
+import { getCollections } from "lib/supabase/products";
 
 export const metadata = {
-  description: "Ferti Lider — семена и продукти.",
+  description:
+    "Ferti Lider — семена, торове и продукти за градина и стопанство. Доставка с Еконт, лично обслужване.",
   openGraph: {
     type: "website",
   },
 };
 
-/** Сложи файла в `public/main_pick.png` (или смени разширението по-долу). */
-const HOME_HERO_SRC = "/main_pick.png";
+export default async function HomePage() {
+  const collections = await getCollections();
 
-export default function HomePage() {
   return (
     <>
-      <section className="mx-auto w-full max-w-[2000px] px-3 py-4 sm:px-4 md:py-5">
-        <div className="relative h-[calc(100svh-5.5rem)] w-full">
-          <Image
-            src={HOME_HERO_SRC}
-            alt="Ferti Lider"
-            fill
-            className="object-contain object-center"
-            sizes="100vw"
-            priority
-          />
-        </div>
-      </section>
+      <HomeLanding collections={collections} />
       <Footer />
     </>
   );

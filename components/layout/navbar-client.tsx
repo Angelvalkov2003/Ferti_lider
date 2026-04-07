@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import CartModal from "components/cart/modal";
 import LogoSquare from "components/logo-square";
 import Link from "next/link";
@@ -8,14 +9,14 @@ import { Suspense } from "react";
 import MobileMenu from "./navbar/mobile-menu";
 import Search, { SearchSkeleton } from "./navbar/search";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
+import { CategoryNavTree } from "components/layout/category-nav-tree";
+import type { Collection } from "lib/types";
 
-interface Collection {
-  id: string;
-  handle: string;
-  title: string;
-}
-
-export function NavbarClient() {
+function NavbarClientInner({
+  activeCollectionHandle,
+}: {
+  activeCollectionHandle: string | null;
+}) {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
   const [productsDropdownOpen, setProductsDropdownOpen] = useState(false);
@@ -96,30 +97,18 @@ export function NavbarClient() {
                   <ChevronDownIcon className={`h-4 w-4 transition-transform ${productsDropdownOpen ? "rotate-180" : ""}`} />
                 </button>
                 {productsDropdownOpen && (
-                  <div className="absolute left-0 top-full mt-2 w-48 rounded-lg bg-white shadow-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700 z-50">
-                    <ul className="py-2">
-                      <li>
-                        <Link
-                          href="/products"
-                          onClick={() => setProductsDropdownOpen(false)}
-                          className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        >
-                          Всички
-                        </Link>
-                      </li>
-                      {!loading &&
-                        collections.map((collection) => (
-                          <li key={collection.id}>
-                            <Link
-                              href={`/products?collection=${collection.handle}`}
-                              onClick={() => setProductsDropdownOpen(false)}
-                              className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                            >
-                              {collection.title}
-                            </Link>
-                          </li>
-                        ))}
-                    </ul>
+                  <div className="absolute left-0 top-full z-50 mt-2 min-w-[220px] max-w-[min(100vw-2rem,20rem)] rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                    {loading ? (
+                      <p className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">Зареждане…</p>
+                    ) : (
+                      <CategoryNavTree
+                        collections={collections}
+                        variant="dropdown"
+                        activeHandle={activeCollectionHandle}
+                        onNavigate={() => setProductsDropdownOpen(false)}
+                        includeAllProductsLink={true}
+                      />
+                    )}
                   </div>
                 )}
               </div>
@@ -145,5 +134,20 @@ export function NavbarClient() {
         </div>
       </div>
     </nav>
+  );
+}
+
+function NavbarClientWithSearchParams() {
+  const searchParams = useSearchParams();
+  return (
+    <NavbarClientInner activeCollectionHandle={searchParams.get("collection")} />
+  );
+}
+
+export function NavbarClient() {
+  return (
+    <Suspense fallback={<NavbarClientInner activeCollectionHandle={null} />}>
+      <NavbarClientWithSearchParams />
+    </Suspense>
   );
 }

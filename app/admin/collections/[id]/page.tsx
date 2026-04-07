@@ -1,4 +1,7 @@
-import { getCollectionByIdForAdmin } from "lib/supabase/admin-collections";
+import {
+  getAllCollectionsForAdmin,
+  getCollectionByIdForAdmin,
+} from "lib/supabase/admin-collections";
 import { CollectionForm } from "components/admin/collection-form";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -20,9 +23,27 @@ export default async function EditCollectionPage({
   }
   
   let collection;
+  let allRows: {
+    id: string;
+    handle: string;
+    title: string;
+    parent_id: string | null;
+  }[] = [];
   try {
-    collection = await getCollectionByIdForAdmin(id);
-    
+    const [single, all] = await Promise.all([
+      getCollectionByIdForAdmin(id),
+      getAllCollectionsForAdmin(),
+    ]);
+    collection = single;
+    allRows = all.map(
+      (c: { id: string; handle: string; title: string; parent_id: string | null }) => ({
+        id: c.id,
+        handle: c.handle,
+        title: c.title,
+        parent_id: c.parent_id ?? null,
+      }),
+    );
+
     if (!collection) {
       notFound();
     }
@@ -57,7 +78,7 @@ export default async function EditCollectionPage({
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <CollectionForm collection={collection} />
+        <CollectionForm collection={collection} allCollections={allRows} />
       </div>
     </div>
   );

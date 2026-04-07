@@ -1,4 +1,5 @@
 import type { Product, Collection } from "lib/types";
+import { getSelfAndDescendantHandles } from "lib/collection-hierarchy";
 import { minOptionPrice, parsePackageOptionsFromDb } from "lib/package-options";
 import { cache } from "react";
 import { createServerClient } from "./server";
@@ -37,13 +38,19 @@ export async function getProducts(params?: {
       query = query.or(`title.ilike.%${params.query}%,description.ilike.%${params.query}%`);
     }
 
-    if (params?.collection) {
-      query = query.eq("category", params.collection);
-    }
-
-    // Filter by multiple categories
+    // Filter by multiple categories (приоритет пред единична collection)
     if (params?.categories && params.categories.length > 0) {
       query = query.in("category", params.categories);
+    } else if (params?.collection) {
+      const collections = await getCollections();
+      const handles = getSelfAndDescendantHandles(params.collection, collections);
+      if (!handles || handles.length === 0) {
+        query = query.eq("category", params.collection);
+      } else if (handles.length === 1) {
+        query = query.eq("category", handles[0]);
+      } else {
+        query = query.in("category", handles);
+      }
     }
 
     // Filter by price range
@@ -162,10 +169,10 @@ export const getProduct = cache(async (handle: string): Promise<Product | null> 
   }
 });
 
-export async function getCollections(): Promise<Collection[]> {
+export const getCollections = cache(async (): Promise<Collection[]> => {
   try {
     const supabase = await createServerClient();
-    
+
     const { data, error } = await supabase
       .from("collections")
       .select("*")
@@ -173,7 +180,6 @@ export async function getCollections(): Promise<Collection[]> {
       .order("title", { ascending: true });
 
     if (error) {
-      // If table doesn't exist or other error, return empty array
       console.error("Error fetching collections:", error.message || error);
       return [];
     }
@@ -187,36 +193,29 @@ export async function getCollections(): Promise<Collection[]> {
       handle: item.handle,
       title: item.title,
       description: item.description || undefined,
+      parentId: item.parent_id ?? null,
       updatedAt: item.updated_at || new Date().toISOString(),
     }));
   } catch (error) {
-    // Don't catch React.postpone() - let it propagate for PPR
     if (isReactPostpone(error)) {
       throw error;
     }
-    // Catch any unexpected errors and return empty array
     console.error("Error in getCollections:", error);
     return [];
   }
-}
+});
 
 export async function getCollectionProducts(handle: string): Promise<Product[]> {
   try {
-    const supabase = await createServerClient();
-    
-    // Verify collection exists
-    const { data: collection, error } = await supabase
-      .from("collections")
-      .select("handle")
-      .eq("handle", handle)
-      .single();
-
-    if (error || !collection) {
+    const collections = await getCollections();
+    const handles = getSelfAndDescendantHandles(handle, collections);
+    if (!handles || handles.length === 0) {
       return [];
     }
-
-    // Use handle (which is stored in products.category) to filter products
-    return getProducts({ collection: handle });
+    if (handles.length === 1) {
+      return getProducts({ collection: handles[0] });
+    }
+    return getProducts({ categories: handles });
   } catch (error) {
     // Don't catch React.postpone() - let it propagate for PPR
     if (isReactPostpone(error)) {

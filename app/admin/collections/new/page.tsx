@@ -1,6 +1,17 @@
 import { CollectionForm } from "components/admin/collection-form";
+import { getAllCollectionsForAdmin } from "lib/supabase/admin-collections";
 
 export default async function NewCollectionPage() {
+  const allCollections = await getAllCollectionsForAdmin();
+  const rows = allCollections.map(
+    (c: { id: string; handle: string; title: string; parent_id: string | null }) => ({
+      id: c.id,
+      handle: c.handle,
+      title: c.title,
+      parent_id: c.parent_id ?? null,
+    }),
+  );
+
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
@@ -13,7 +24,7 @@ export default async function NewCollectionPage() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <CollectionForm />
+        <CollectionForm allCollections={rows} />
       </div>
     </div>
   );

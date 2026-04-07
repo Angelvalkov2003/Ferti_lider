@@ -14,6 +14,8 @@ export async function createCollectionAction(data: CreateCollectionData) {
     const collection = await createCollection(data);
     revalidatePath("/admin/collections");
     revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath("/");
     return { success: true, collection };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to create collection" };
@@ -26,6 +28,8 @@ export async function updateCollectionAction(data: UpdateCollectionData) {
     revalidatePath("/admin/collections");
     revalidatePath(`/admin/collections/${data.id}`);
     revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath("/");
     return { success: true, collection };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to update collection" };
@@ -37,6 +41,8 @@ export async function deleteCollectionAction(collectionId: string) {
     await deleteCollection(collectionId);
     revalidatePath("/admin/collections");
     revalidatePath("/admin");
+    revalidatePath("/products");
+    revalidatePath("/");
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || "Failed to delete collection" };

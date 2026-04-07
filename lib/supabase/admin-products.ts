@@ -1,6 +1,8 @@
 import { randomUUID } from "crypto";
+import { isLeafCategoryByHandle } from "lib/collection-hierarchy";
+import type { Collection, Image } from "lib/types";
+import { getAllCollectionsForAdmin } from "./admin-collections";
 import { createServerClient } from "./server";
-import type { Image } from "lib/types";
 
 // Helper to check if error is React.postpone()
 function isReactPostpone(error: unknown): boolean {
@@ -231,6 +233,32 @@ export async function getProductByIdForAdmin(productId: string) {
 /**
  * Check if handle already exists
  */
+async function assertProductCategoryIsLeafCategory(
+  categoryHandle: string | null | undefined,
+) {
+  const trimmed = categoryHandle?.trim();
+  if (!trimmed) {
+    throw new Error("Избери категория.");
+  }
+  const rows = await getAllCollectionsForAdmin();
+  const collections: Collection[] = rows.map((r: any) => ({
+    id: r.id,
+    handle: r.handle,
+    title: r.title,
+    parentId: r.parent_id ?? null,
+    updatedAt: r.updated_at || new Date().toISOString(),
+  }));
+  const exists = collections.some((c) => c.handle === trimmed);
+  if (!exists) {
+    throw new Error("Избраната категория не съществува.");
+  }
+  if (!isLeafCategoryByHandle(trimmed, collections)) {
+    throw new Error(
+      "Продуктът може да е само в крайна категория (без подкатегории). Избери по-конкретна категория.",
+    );
+  }
+}
+
 async function checkHandleExists(handle: string, excludeId?: string): Promise<boolean> {
   try {
     const supabase = await createServerClient();
@@ -278,7 +306,9 @@ export async function createProduct(data: CreateProductData) {
     if (handleExists) {
       throw new Error(`Slug "${trimmedHandle}" вече е зает. Моля, изберете друг slug.`);
     }
-    
+
+    await assertProductCategoryIsLeafCategory(data.category);
+
     const { rows: packageRows, minPrice } = normalizePackageOptionsForDb(
       data.package_options
     );
@@ -375,7 +405,10 @@ export async function updateProduct(data: UpdateProductData) {
     }
     if (data.featured_image !== undefined) updateData.featured_image = data.featured_image || null;
     if (data.images !== undefined) updateData.images = data.images || [];
-    if (data.category !== undefined) updateData.category = data.category || null;
+    if (data.category !== undefined) {
+      await assertProductCategoryIsLeafCategory(data.category);
+      updateData.category = data.category || null;
+    }
     if (data.available !== undefined) updateData.available = data.available;
     if (data.position !== undefined) updateData.position = data.position;
 

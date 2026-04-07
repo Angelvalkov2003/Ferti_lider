@@ -7,6 +7,7 @@ import Price from "components/price";
 import { createOrder } from "app/checkout/actions";
 import LoadingDots from "components/loading-dots";
 import { DEFAULT_VARIANT_TITLE } from "lib/package-options";
+import { DELIVERY_CARRIER_NOTICE } from "lib/site-contact";
 
 export default function CheckoutPage() {
   const { cart } = useCart();
@@ -129,6 +130,9 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
                 Данни за доставка
               </h2>
+              <p className="mb-4 rounded-lg bg-brand-50/80 px-3 py-2 text-sm text-gray-700 dark:bg-brand-950/30 dark:text-gray-300">
+                {DELIVERY_CARRIER_NOTICE}
+              </p>
 
               {error && (
                 <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-300 rounded">
@@ -375,8 +379,8 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Доставка</span>
-                  <span className="text-gray-600 dark:text-gray-400">
-                    Ще се изчисли при плащане
+                  <span className="text-right text-gray-600 dark:text-gray-400">
+                    Еконт — до 300 € за сметка на клиента
                   </span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2">

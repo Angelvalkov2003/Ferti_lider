@@ -22,6 +22,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- This is the ONLY table for categorizing products
 CREATE TABLE collections (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    parent_id UUID REFERENCES collections(id) ON DELETE SET NULL,
     handle TEXT UNIQUE NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
@@ -82,6 +83,7 @@ CREATE INDEX idx_products_available ON products(available);
 CREATE INDEX idx_products_position ON products(position);
 CREATE INDEX idx_collections_handle ON collections(handle);
 CREATE INDEX idx_collections_position ON collections(position);
+CREATE INDEX idx_collections_parent_id ON collections(parent_id);
 CREATE INDEX idx_product_images_product_id ON product_images(product_id);
 CREATE INDEX idx_product_images_sort_order ON product_images(product_id, sort_order);
 CREATE INDEX idx_orders_status ON orders(status);
@@ -119,6 +121,7 @@ CHECK (validate_products_json(products));
 
 -- Add comments for documentation
 COMMENT ON TABLE collections IS 'Stores product collections/categories - this is the ONLY table for categorizing products';
+COMMENT ON COLUMN collections.parent_id IS 'NULL = главна категория; иначе подкатегория на посочената родителска категория';
 COMMENT ON TABLE products IS 'Stores products available in the online store';
 COMMENT ON TABLE product_images IS 'Stores product images with ordering support. sort_order 0 = main image';
 COMMENT ON TABLE orders IS 'Stores complete order information including customer details. Products are stored as JSON snapshots. Cart is stored locally in browser (localStorage/cookies), not in database.';

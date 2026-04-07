@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createCollectionAction, updateCollectionAction } from "app/admin/collections/actions";
+import { getDescendantIds, parentSelectOptions } from "lib/collection-hierarchy";
+import type { Collection } from "lib/types";
 import { toast } from "sonner";
 
 interface CollectionFormData {
@@ -10,35 +12,68 @@ interface CollectionFormData {
   title: string;
   description: string;
   position: string;
+  parentId: string;
 }
+
+export type AdminCollectionRow = {
+  id: string;
+  handle: string;
+  title: string;
+  parent_id: string | null;
+};
 
 interface CollectionFormProps {
-  collection?: any;
+  collection?: Record<string, unknown> & { id: string };
+  allCollections?: AdminCollectionRow[];
 }
 
-export function CollectionForm({ collection }: CollectionFormProps) {
+export function CollectionForm({
+  collection,
+  allCollections = [],
+}: CollectionFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [handleError, setHandleError] = useState<string | null>(null);
   const [formData, setFormData] = useState<CollectionFormData>({
-    handle: collection?.handle || "",
-    title: collection?.title || "",
-    description: collection?.description || "",
-    position: collection?.position?.toString() || "0",
+    handle: (collection?.handle as string) || "",
+    title: (collection?.title as string) || "",
+    description: (collection?.description as string) || "",
+    position: collection?.position != null ? String(collection.position) : "0",
+    parentId: collection?.parent_id ? String(collection.parent_id) : "",
   });
 
-  // Format handle/slug: lowercase, remove spaces, only allow letters, numbers, and hyphens
+  const asCollection: Collection[] = useMemo(
+    () =>
+      allCollections.map((c) => ({
+        id: c.id,
+        handle: c.handle,
+        title: c.title,
+        parentId: c.parent_id ?? null,
+        updatedAt: "",
+      })),
+    [allCollections],
+  );
+
+  const parentOptions = useMemo(() => {
+    const excludeIds = new Set<string>();
+    if (collection?.id) {
+      excludeIds.add(collection.id);
+      const desc = getDescendantIds(collection.id, asCollection);
+      desc.forEach((id) => excludeIds.add(id));
+    }
+    return parentSelectOptions(asCollection, excludeIds);
+  }, [collection?.id, asCollection]);
+
   const formatHandle = (value: string): string => {
     return value
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, "") // Remove all spaces
-      .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric characters except hyphens
-      .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
-      .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+      .replace(/\s+/g, "")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
   };
 
-  // Generate handle from title
   const generateHandleFromTitle = (title: string): string => {
     return formatHandle(title);
   };
@@ -46,20 +81,19 @@ export function CollectionForm({ collection }: CollectionFormProps) {
   const handleHandleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatHandle(e.target.value);
     setFormData({ ...formData, handle: formatted });
-    // Clear error when user starts typing
-    if (handleError) {
-      setHandleError(null);
-    }
+    if (handleError) setHandleError(null);
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
-    // Auto-generate handle from title if handle is empty
-    if (!formData.handle || formData.handle === formatHandle(collection?.title || "")) {
-      setFormData({ 
-        ...formData, 
+    if (
+      !formData.handle ||
+      formData.handle === formatHandle((collection?.title as string) || "")
+    ) {
+      setFormData({
+        ...formData,
         title: newTitle,
-        handle: generateHandleFromTitle(newTitle)
+        handle: generateHandleFromTitle(newTitle),
       });
     } else {
       setFormData({ ...formData, title: newTitle });
@@ -71,14 +105,16 @@ export function CollectionForm({ collection }: CollectionFormProps) {
     setLoading(true);
 
     try {
-      // Generate handle from title if not provided, and trim to remove any spaces
-      const finalHandle = (formData.handle.trim() || generateHandleFromTitle(formData.title)).trim();
+      const finalHandle = (
+        formData.handle.trim() || generateHandleFromTitle(formData.title)
+      ).trim();
 
       const collectionData = {
         handle: finalHandle,
         title: formData.title,
         description: formData.description.trim() || undefined,
-        position: parseInt(formData.position) || 0,
+        position: parseInt(formData.position, 10) || 0,
+        parentId: formData.parentId.trim() || null,
       };
 
       let result;
@@ -89,22 +125,23 @@ export function CollectionForm({ collection }: CollectionFormProps) {
       }
 
       if (result.success) {
-        toast.success(collection ? "Колекцията е обновена успешно" : "Колекцията е създадена успешно");
+        toast.success(
+          collection ? "Категорията е обновена успешно" : "Категорията е създадена успешно",
+        );
         router.push("/admin/collections");
         router.refresh();
       } else {
-        const errorMessage = result.error || "Грешка при запазване на колекция";
-        // Check if error is about duplicate handle
+        const errorMessage = result.error || "Грешка при запазване";
         if (errorMessage.includes("Slug") && errorMessage.includes("зает")) {
           setHandleError(errorMessage);
         } else {
           toast.error(errorMessage);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error saving collection:", error);
-      const errorMessage = error.message || "Грешка при запазване на колекция";
-      // Check if error is about duplicate handle
+      const errorMessage =
+        error instanceof Error ? error.message : "Грешка при запазване";
       if (errorMessage.includes("Slug") && errorMessage.includes("зает")) {
         setHandleError(errorMessage);
       } else {
@@ -117,35 +154,33 @@ export function CollectionForm({ collection }: CollectionFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Handle (URL slug)
           </label>
           <input
             type="text"
             value={formData.handle}
             onChange={handleHandleChange}
-            className={`w-full px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white ${
-              handleError 
-                ? "border-red-500 dark:border-red-500" 
+            className={`w-full rounded-md border bg-white px-3 py-2 text-gray-900 dark:bg-gray-800 dark:text-white ${
+              handleError
+                ? "border-red-500 dark:border-red-500"
                 : "border-gray-300 dark:border-gray-700"
             }`}
-            placeholder="teniskazelena"
+            placeholder="semena-zelenchuci"
           />
           {handleError ? (
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-              {handleError}
-            </p>
+            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{handleError}</p>
           ) : (
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Ако не се въведе, ще се генерира автоматично от името. Само малки букви, числа и без разстояния. Пример: /teniskazelena
+              Малки букви, числа и тире. Използва се в адреса /search/...
             </p>
           )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Име *
           </label>
           <input
@@ -153,12 +188,34 @@ export function CollectionForm({ collection }: CollectionFormProps) {
             required
             value={formData.title}
             onChange={handleTitleChange}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
           />
         </div>
 
+        <div className="md:col-span-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Родителска категория
+          </label>
+          <select
+            value={formData.parentId}
+            onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          >
+            <option value="">— Главна категория (без родител) —</option>
+            {parentOptions.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Подкатегориите се показват под родителя в менюто. Не може да избереш себе си или
+            своя подкатегория като родител.
+          </p>
+        </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             Позиция
           </label>
           <input
@@ -166,43 +223,37 @@ export function CollectionForm({ collection }: CollectionFormProps) {
             min="0"
             value={formData.position}
             onChange={(e) => setFormData({ ...formData, position: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             placeholder="0 = първа позиция"
           />
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            0 = първа позиция, по-големи числа = по-назад
-          </p>
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
           Описание
         </label>
         <textarea
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-          placeholder="Описание на колекцията (незадължително)"
+          className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+          placeholder="Описание (незадължително)"
         />
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-          Описание, което ще се показва под заглавието на колекцията
-        </p>
       </div>
 
       <div className="flex gap-4">
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-brand-500 text-white rounded-md hover:bg-brand-600 disabled:opacity-50"
+          className="rounded-md bg-brand-500 px-4 py-2 text-white hover:bg-brand-600 disabled:opacity-50"
         >
           {loading ? "Запазване..." : collection ? "Обнови" : "Създай"}
         </button>
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
+          className="rounded-md bg-gray-200 px-4 py-2 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         >
           Отказ
         </button>

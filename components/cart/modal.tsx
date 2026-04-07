@@ -14,6 +14,7 @@ import { redirectToCheckout } from "./actions";
 import { useCart } from "./cart-context";
 import { DeleteItemButton } from "./delete-item-button";
 import { EditItemQuantityButton } from "./edit-item-quantity-button";
+import { DELIVERY_CARRIER_NOTICE } from "lib/site-contact";
 import OpenCart from "./open-cart";
 
 export default function CartModal({
@@ -165,7 +166,9 @@ export default function CartModal({
                     </div>
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
                       <p>Доставка</p>
-                      <p className="text-right">Ще се изчисли при плащане</p>
+                      <p className="max-w-[58%] text-right text-xs leading-snug text-neutral-600 dark:text-neutral-400">
+                        Еконт — до 300 € за клиента
+                      </p>
                     </div>
                     <div className="mb-3 flex items-center justify-between border-b border-neutral-200 pb-1 pt-1 dark:border-neutral-700">
                       <p>Общо</p>
@@ -175,7 +178,10 @@ export default function CartModal({
                         currencyCode={cart.currency}
                       />
                     </div>
-                    <div className="mt-3 text-xs text-neutral-400 dark:text-neutral-500">
+                    <div className="mt-3 space-y-2 text-xs text-neutral-400 dark:text-neutral-500">
+                      <p className="text-center text-neutral-600 dark:text-neutral-400">
+                        {DELIVERY_CARRIER_NOTICE}
+                      </p>
                       <p className="text-center">
                         Цените се изчисляват по курс 1 EUR = 1.95583 BGN
                       </p>
